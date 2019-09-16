@@ -125,20 +125,35 @@ class Phone(TestUrl):
         """
 
         # 定义拨号url，使用ActionURL方式拨号
-        # url_dial = '%s/Phone_ActionURL&Command=1&Number=%s&%s' % (self.prefix, dst_ext, account)
-        
-        if isnew:
-            line_key = 'l%s' % self.line
-            self.press_key(line_key)
+        url_dial = '%s/Phone_ActionURL&Command=1&Number=%s&Account=%s' % (self.prefix, dst_ext, str(self.line))
+        r_dial = self.requests_get(url_dial, self._func_name())
+        if r_dial[0] == 200:
+            time.sleep(1)
+            if self.check_status('outgoing'):
+                log.info('%s dial %s success.' % (self.ext, dst_ext))
+                return 200
+            else:
+                log.info('Function Check Status Failed.')
+                return 400
+        elif r_dial[0] == 500:
+            log.info('Function Dial return %s %s...' % (r_dial[0], r_dial[1]))
+            return 500
         else:
-            pass
-        time.time()
-        for num in dst_ext:
-            self.press_key(num)
-        self.press_key('f1')
+            log.info('Function Dial return %s %s...' % (r_dial[0], r_dial[1]))
+            return 400
 
-        log.info('%s dial %s success.' % (self.ext, dst_ext))
-        return True
+        # if isnew:
+        #     line_key = 'l%s' % self.line
+        #     self.press_key(line_key)
+        # else:
+        #     pass
+        # time.time()
+        # for num in dst_ext:
+        #     self.press_key(num)
+        # self.press_key('f1')
+        #
+        # log.info('%s dial %s success.' % (self.ext, dst_ext))
+        # return True
 
 
     def answer(self, cmd: str = 'f1, speaker, ok'):
