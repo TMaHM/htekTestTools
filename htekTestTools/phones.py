@@ -3,7 +3,7 @@
 import time
 import re
 
-from docs.conf import *
+from data.conf import *
 
 
 class Phone(TestUrl):

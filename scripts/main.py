@@ -1,3 +1,6 @@
-import scripts.scp_test1
+from htekTestTools.htekTestTools import *
+from data.usr_data import *
 
-scripts.scp_test1.print_dir()
+
+basic_call(phone_1, phone_2)
+transfer_flow(phone_1, phone_2, phone_3)

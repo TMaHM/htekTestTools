@@ -1,3 +1,7 @@
-from docs import conf
+def basic_call(phone_a, phone_b):
+    phone_a.dial(phone_b.ext)
 
-print(conf.phone_list)
+
+def transfer_flow(phone_a, phone_b, phone_c):
+    phone_a.dial(phone_b.ext)
+    phone_b.transfer(phone_c)
