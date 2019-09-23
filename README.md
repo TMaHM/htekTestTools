@@ -19,18 +19,3 @@ scripts/
 README.md
 TODO.md
 ```
-data/
-├── conf.py
-├── __init__.py
-└── usr_data.py
-docs/
-└── __init__.py
-htekTestTools/
-├── htekTestTools.py
-├── __init__.py
-└── phones.py
-scripts/
-└── main.py
-README.md
-TODO.md
-
