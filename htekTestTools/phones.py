@@ -2,11 +2,13 @@
 
 import time
 import re
+import requests
 
 from data.conf import *
 
 
 class Phone(TestUrl):
+    log = Logger(echo=False)
 
     def __init__(self, ip: str, extension: str, line=1, usr='admin', pwd='admin'):
         TestUrl.__init__(self, ip, usr, pwd)
@@ -26,41 +28,41 @@ class Phone(TestUrl):
         self.pwd = pwd
         self.cfg_file = 'cfg%s.xml' % self.ip.replace('.', '_')
 
-    def requests_get(self, url: str, name):
+    def requests_get(self, url: str, func_name):
         """
         简化其他方法中调用requests的流程
+        除了capture screen外，都使用该方法
         :param url: get的url
-        :param name: 当前运行的方法名，由方法_func_name提供
+        :param func_name: 当前运行的方法名，由方法_func_name提供
         :return: 成功返回元祖(status_code, content.decode()); 失败返回错误提示
         """
-        import requests
         cnt_retry = 0
 
         while cnt_retry <= 1:
             try:
                 r = requests.get(url, timeout=5)
-                log.debug('Try to execute [%s] on %s, url is --> %s' % (name, self.ext, url))
+                self.log.debug('Try to execute [%s] on %s, url is --> %s' % (func_name, self.ext, url))
                 if r.status_code == 200:
-                    log.debug('Execute %s success [%s].' % (name, url))
+                    self.log.debug('Execute %s success [%s].' % (func_name, url))
                     try:
                         return r.status_code, r.content.decode()
                     except UnicodeDecodeError:
                         return r.status_code, r.content
                 elif r.status_code == 401:
-                    # log.error('Execute %s Failed. %s return 401...Retry now...' % (name, url))
+                    # self.log.error('Execute %s Failed. %s return 401...Retry now...' % (name, url))
                     cnt_retry += 1
                 elif r.status_code == 404:
-                    log.debug('404 Not Found --> %s' % url)
+                    self.log.debug('404 Not Found --> %s' % url)
                     return 404, 'Not Found'
                 else:
-                    log.error('Execute %s on %s Failed. %s return %s...' % (name, self.ext, url, r.status_code))
+                    self.log.error('Execute %s on %s Failed. %s return %s...' % (func_name, self.ext, url, r.status_code))
                     return r.status_code, 'Get Failed'
 
             except requests.ConnectionError:
-                log.error('Execute %s on %s Failed. Get %s connection error...' % (name, self.ext, url))
+                self.log.error('Execute %s on %s Failed. Get %s connection error...' % (func_name, self.ext, url))
                 return 500, '%s Connection Error...' % url
 
-        log.error('Auth Failed, please verify it ...' )
+        self.log.error('Auth Failed, please verify it ...')
         return 401, 'Auth Failed'
 
     @staticmethod
@@ -74,50 +76,58 @@ class Phone(TestUrl):
         print('Preparing configuration files, please wait...')
         with open(self.cfg_file, 'w+', encoding='utf-8') as f:
             url = '%s/download_xml_cfg' % self.prefix
-            log.info('Prepare config files %s...' % url)
+            self.log.info('Prepare config files %s...' % url)
             prepare_file = self.requests_get(url, self._func_name())
             if prepare_file[0] is 200:
                 f.write(prepare_file[1])
                 print('Configuration file prepared.')
-                log.info('Prepare config files %s success.' % url)
+                self.log.info('Prepare config files %s success.' % url)
             else:
                 print('Configuration file prepare failed...')
-                log.error('Prepare config files %s failed.' % url)
+                self.log.error('Prepare config files %s failed.' % url)
 
-    def check_status(self, status):
+    def check_status(self, status: str):
+        """
+        在达到最大检查次数前，如果状态检查失败，间隔0.5s重复执行
+        超时截图并返回失败
+        :param status: str 要检查的状态
+        :return: True or False
+        """
         check_failed = False
         check_success = True
         retry_times = 0
         pat_return_code = r'(?<=<Return>)(\d)(?=</Return>)'
         code = phone_status(status)
         url_check_status = '%s%s' % (self.url_status, code)
-        while retry_times < max_check_times:
+
+        while retry_times < MAX_CHECK_TIMES:
             return_code = self.requests_get(url_check_status, self._func_name())
             if return_code[0] == 200:
                 result = re.findall(pat_return_code, return_code[1])
                 if result == ['0']:
-                    log.info('Check status [%s] on %s success after %s time(s).' % (status, self.ip, retry_times))
+                    self.log.info('Check status [%s] on %s success after %s time(s).' % (status, self.ip, retry_times))
                     return check_success
                 elif result == ['1']:
                     retry_times += 1
                     time.sleep(0.5)
                     continue
                 else:
-                    log.error('Unknown Status...')
-                    log.error(return_code[1].encode())
+                    self.log.error('Unknown Status...')
+                    self.log.error(return_code[1].encode())
                     self.screen_shot(self._func_name())
                     return check_failed
             else:
-                log.error('Return %s. Retry Now! - %s time(s).' % (return_code[0], retry_times))
+                self.log.error('Return %s. Retry Now! - %s time(s).' % (return_code[0], retry_times))
                 time.sleep(0.5)
                 retry_times += 1
                 continue
 
-        log.error('Check status [%s] Failed!' % status)
-        self.screen_shot('%s_%s' % (self._func_name(), status))
-        return check_failed
+        self.log.error('Check status [%s] Failed!' % status)
+        screen_cap = self.screen_shot('%s_%s' % (self._func_name(), status))
+        if screen_cap == 200:
+            return check_failed
 
-    def dial(self, dst_ext: str, isnew:bool=True):
+    def dial(self, dst_ext: str,):
         """
         Phone(A) dial Phone(B)'s extension
         :param dst_ext: Destination Extension
@@ -130,31 +140,17 @@ class Phone(TestUrl):
         if r_dial[0] == 200:
             time.sleep(1)
             if self.check_status('outgoing'):
-                log.info('%s dial %s success.' % (self.ext, dst_ext))
+                self.log.info('%s dial %s success.' % (self.ext, dst_ext))
                 return 200
             else:
-                log.info('Function Check Status Failed.')
+                self.log.info('Function Check Status Failed.')
                 return 400
         elif r_dial[0] == 500:
-            log.info('Function Dial return %s %s...' % (r_dial[0], r_dial[1]))
+            self.log.info('Function Dial return %s %s...' % (r_dial[0], r_dial[1]))
             return 500
         else:
-            log.info('Function Dial return %s %s...' % (r_dial[0], r_dial[1]))
+            self.log.info('Function Dial return %s %s...' % (r_dial[0], r_dial[1]))
             return 400
-
-        # if isnew:
-        #     line_key = 'l%s' % self.line
-        #     self.press_key(line_key)
-        # else:
-        #     pass
-        # time.time()
-        # for num in dst_ext:
-        #     self.press_key(num)
-        # self.press_key('f1')
-        #
-        # log.info('%s dial %s success.' % (self.ext, dst_ext))
-        # return True
-
 
     def answer(self, cmd: str = 'f1, speaker, ok'):
         """
@@ -168,26 +164,26 @@ class Phone(TestUrl):
             if r_answer[0] == 200:
                 self.keep_call(2)
                 if self.check_status('talking'):
-                    log.info('%s answered by %s.' % (self.ip, cmd.upper()))
+                    self.log.info('%s answered by %s.' % (self.ip, cmd.upper()))
                     self.keep_call(1)
                     return 200
                 else:
-                    log.error('Check status failed...But the scripts will continue.')
+                    self.log.error('Check status failed...But the scripts will continue.')
                     return 400
             else:
-                log.error('%s answer failed.' % self.ip)
+                self.log.error('%s answer failed.' % self.ip)
                 return 500
 
     def hold(self):
         url_hold = '%s%s' % (self.keyboard, 'F_HOLD')
         self.requests_get(url_hold, self._func_name())
         if self.check_status('hold'):
-            log.info('%s(%s) is now hold the call.' % (self.ext, self.ip))
+            self.log.info('%s(%s) is now hold the call.' % (self.ext, self.ip))
         else:
-            log.error('%s(%s) hold the call failed.' % (self.ext, self.ip))
+            self.log.error('%s(%s) hold the call failed.' % (self.ext, self.ip))
 
     def keep_call(self, seconds: int):
-        log.info('%s keep the call on for %s senconds.' % (self.ext, seconds))
+        self.log.info('%s keep the call on for %s seconds.' % (self.ext, seconds))
         time.sleep(seconds)
         return seconds
 
@@ -202,6 +198,7 @@ class Phone(TestUrl):
 
         self.prepare_cfg_file()
 
+        # 为避免每次遍历整个cfg.xml文件，因此写死了开始行和结尾行
         lk_start_line = 1616
         lk_end_line = 1866
         real_key_type = None
@@ -251,17 +248,17 @@ class Phone(TestUrl):
                             'value'  : '%s' % real_key_value,
                             'account': '%s' % real_key_account,
                             'label'  : '%s' % real_key_label}
-            log.info('Check LineKey_%s properties return: %s' % (line_key_num[0], key_property))
+            self.log.info('Check LineKey_%s properties return: %s' % (line_key_num[0], key_property))
 
             cfg_file.close()
             if real_key_type is not None:
                 return key_property
             else:
-                log.info(real_key_type)
+                self.log.info(real_key_type)
                 return 'Key Type mismatched.'
         #
         except BaseException:
-            log.info('Input line key [ %s ] mismatched, need to check.' % key.upper())
+            self.log.info('Input line key [ %s ] mismatched, need to check.' % key.upper())
 
     def set_line_key(self, key, k_type, value, account='Account1', label=''):
         import linecache
@@ -294,14 +291,15 @@ class Phone(TestUrl):
             for line in islice(f, lk_start_line, lk_end_line):
                 cnt_line += 1
                 matched_key_type = re.findall(pat_key_type, line, flags=re.IGNORECASE)
+
                 if matched_key_type:
                     pv_key_type = re.findall(pat_pv, line)[0]
                     url_set_key_type = '%s%s=%s' % (self.setting, pv_key_type, pc_key_type)
                     r_key_type = self.requests_get(url_set_key_type, self._func_name())
                     if r_key_type[0] == 200:
-                        log.info('%s set %s as %s success.' % (self.ip, key, k_type))
+                        self.log.info('%s set %s as %s success.' % (self.ip, key, k_type))
                     else:
-                        log.info('%s set %s as %s failed.' % (self.ip, key, k_type))
+                        self.log.info('%s set %s as %s failed.' % (self.ip, key, k_type))
 
                     value_line = linecache.getline(cfg_xml_file, lk_start_line + cnt_line + 2)
                     label_line = linecache.getline(cfg_xml_file, lk_start_line + cnt_line + 3)
@@ -312,9 +310,11 @@ class Phone(TestUrl):
                         url_set_key_value = r'%s%s=%s' % (self.setting, pv_key_value, value)
                         r_key_value = self.requests_get(url_set_key_value, self._func_name())
                         if r_key_value[0] == 200:
-                            log.info('%s set %s value as %s success.' % (self.ip, key, value))
+                            self.log.info('%s set %s value as %s success.' % (self.ip, key, value))
                         else:
-                            log.info('%s set %s value as %s failed. %s' % (self.ip, key, value, url_set_key_value))
+                            self.log.info('%s set %s value as %s failed. %s' % (self.ip, key, value, url_set_key_value))
+                    else:
+                        self.log.info('Can not get key value, please check: [pattern->%s], [value line->%s]' % (pat_key_value, value_line))
 
                     key_account = re.findall(pat_key_account, account_line, flags=re.IGNORECASE)
                     if key_account:
@@ -322,40 +322,56 @@ class Phone(TestUrl):
                         url_set_key_account = '%s%s=%s' % (self.setting, pv_key_account, pc_key_account)
                         r_key_account = self.requests_get(url_set_key_account, self._func_name())
                         if r_key_account[0] == 200:
-                            log.info('%s set %s account as %s success.' % (self.ip, key, account))
+                            self.log.info('%s set %s account as %s success.' % (self.ip, key, account))
                         else:
-                            log.info('%s set %s account as %s success.' % (self.ip, key, account))
+                            self.log.info('%s set %s account as %s success.' % (self.ip, key, account))
+                    else:
+                        self.log.info('Can not get key account, please check: [pattern->%s], [account line->%s' % (pat_key_account, account_line))
 
-                    key_label = re.findall(pat_key_label, label_line, flags=re.IGNORECASE)
-                    if key_label:
-                        pv_key_label = re.findall(pat_pv, label_line)[0]
-                        url_set_key_label = '%s%s=%s' % (self.setting, pv_key_label, label)
-                        if label != '':
+                    # 如果不设置label，直接pass
+                    # Label设置失败不影响功能，暂时pass
+                    if label != '':
+                        key_label = re.findall(pat_key_label, label_line, flags=re.IGNORECASE)
+                        if key_label:
+                            pv_key_label = re.findall(pat_pv, label_line)[0]
+                            url_set_key_label = '%s%s=%s' % (self.setting, pv_key_label, label)
                             r_key_label = self.requests_get(url_set_key_label, self._func_name())
-                            if r_key_label[0] != 200:
-                                log.info(self.ip + ' set label failed.')
+                            if r_key_label[0] == 200:
+                                self.log.info('%s set %s label as %s success.' % (self.ip, key, label))
                             else:
+                                self.log.info(self.ip + ' set label failed.')
                                 pass
+                        else:
+                            self.log.info('Can not get key\'s label, please check: [pattern->%s], [label line->%s]' % (pat_key_label, label_line))
+                            pass
+                    else:
+                        pass
 
-    def set_p_value(self, p_value, option):
+    def set_p_value(self, p_value: str, option: str):
         url_set_pv = '{}{}={}'.format(self.setting, p_value.upper(), option)
         result = self.requests_get(url_set_pv, ('Set P Value {}'.format(p_value)))
         if result[0] == 200:
-            log.info('%s(%s) set %s as %s success.' % (self.ext, self.ip, p_value, option))
+            self.log.info('%s(%s) set %s as %s success.' % (self.ext, self.ip, p_value, option))
             return 200
         else:
-            log.info('%s(%s) set %s as %s failed.' % (self.ext, self.ip, p_value, option))
+            self.log.info('%s(%s) set %s as %s failed.' % (self.ext, self.ip, p_value, option))
             return 400
 
-    def press_key(self, cmd):
+    def press_key(self, cmd: str):
+        """
+        按键方法
+        具体按键请参见【自动化测试Action URI说明V3.3】
+        :param cmd:
+        :return: True or False
+        """
         url_press_key = self.keyboard + cmd.upper()
         r_pr_k = self.requests_get(url_press_key, (self._func_name(),cmd))
         if r_pr_k[0] == 200:
             time.sleep(0.5)
-            log.info('%s(%s) press %s' % (self.ext, self.ip, cmd.upper()))
+            self.log.info('%s(%s) press %s' % (self.ext, self.ip, cmd.upper()))
             return 200
         else:
-            log.info('%s(%s) press %s failed...' % (self.ext, self.ip, cmd.upper()))
+            self.log.info('%s(%s) press %s failed...' % (self.ext, self.ip, cmd.upper()))
             return 400
 
     def transfer(self, phone, mod='BT'):
@@ -375,7 +391,7 @@ class Phone(TestUrl):
         elif mod == 'BT':
             self.press_key('f1')
         else:
-            log.error('Transfer mod error --> ' + mod)
+            self.log.error('Transfer mod error --> ' + mod)
 
     def exp_blf(self, cmd):
         for k, v in exp_blf_dir.items():
@@ -387,10 +403,10 @@ class Phone(TestUrl):
                 r_exp_key = self.requests_get(url_exp_key, self._func_name())
                 if r_exp_key[0] == 200:
                     time.sleep(1)
-                    log.info(self.ip + ' trigger Expansion ' + cmd)
+                    self.log.info(self.ip + ' trigger Expansion ' + cmd)
                     return 200
                 else:
-                    log.error(self.ip + ' trigger Expansion' + cmd + 'failed...')
+                    self.log.error(self.ip + ' trigger Expansion' + cmd + 'failed...')
                     return 400
 
     def end_call(self, cmd: str='f4, speaker, x'):
@@ -405,35 +421,35 @@ class Phone(TestUrl):
         if r_end[0] == 200:
             time.sleep(2)
             if self.check_status('idle'):
-                log.info(self.ip + ' The call ended with ' + cmd)
+                self.log.info(self.ip + ' The call ended with ' + cmd)
                 return 200
             else:
                 self.screen_shot(self._func_name())
-                log.error(self.ip + ' end call failed with ' + cmd)
+                self.log.error(self.ip + ' end call failed with ' + cmd)
                 return 400
         else:
-            log.error(self.ip + ' Return ' + str(r_end[0]) + ', End call failed.')
+            self.log.error(self.ip + ' Return ' + str(r_end[0]) + ', End call failed.')
             return 400
 
     def set_idle_status(self):
         url_return_idle = self.prefix + '/drd=RETURNIDLE'
         r_return_idle = self.requests_get(url_return_idle, self._func_name())
         if r_return_idle[0] == 200:
-            log.info(self.ip + ' set [idle] status in ' + self.ip + ' success.')
+            self.log.info(self.ip + ' set [idle] status in ' + self.ip + ' success.')
         elif r_return_idle[0] == 404:
-            log.error('%s has not merged, try press [F4] twice to return to idle.' % url_return_idle)
+            self.log.error('%s has not merged, try press [F4] twice to return to idle.' % url_return_idle)
             self.press_key('f4')
             time.sleep(0.5)
             self.press_key('f4')
             time.sleep(2)
         else:
-            log.error('%s return %s' % (url_return_idle, r_return_idle[0]))
+            self.log.error('%s return %s' % (url_return_idle, r_return_idle[0]))
 
         if self.check_status('idle'):
-            log.info('Return to Idle status success.')
+            self.log.info('Return to Idle status success.')
             return 200
         else:
-            log.error('Return to Idle status failed.')
+            self.log.error('Return to Idle status failed.')
             return 400
 
     def get_memory(self):
@@ -441,17 +457,16 @@ class Phone(TestUrl):
         Get Phone(A)'s memory info
         :return: True or False
         """
-
         pat_un_tag = r'(?<=\>)(.*)(?=\<)'
         url_memory = self.url_get_memory
         r_mem = self.requests_get(url_memory, self._func_name())
         if r_mem[0] == 200:
             mem_info = re.findall(pat_un_tag, r_mem[0])
             print(mem_info, time.time())
-            log.info(self.ip + str(mem_info))
+            self.log.info(self.ip + str(mem_info))
             return 200
         else:
-            log.error(self.ip + 'Get memory failed, return ' + str(r_mem[0]))
+            self.log.error(self.ip + 'Get memory failed, return ' + str(r_mem[0]))
             return 400
 
     def screen_shot(self, screen_name):
@@ -461,116 +476,45 @@ class Phone(TestUrl):
         :return: True or False
         """
         retry = 0
+        url_screen_cap = self.screenshot
 
-        url_screen_shot = self.screenshot
         while retry < 2:
-            r_screen_shot = self.requests_get(url_screen_shot, self._func_name())
-            if r_screen_shot[0] == 200:
-                cur_time = time.strftime("%m%d_%H%M%S", time.localtime())
-                stored_screen = '%s%s_%s.jpg' % (log.screen_dir, screen_name, cur_time)
-                with open(stored_screen, 'wb') as f:
-                    f.write(r_screen_shot[1])
-                    log.info('Capture ScreenShot Success: %s' % stored_screen)
+            # 避免因为第一次get返回401导致截屏失败
+            cur_time = time.strftime("%m%d_%H%M%S", time.localtime())
+            stored_screen = '%s%s_%s.jpg' % (self.log.screen_dir, screen_name, cur_time)
+            screen_file = open(stored_screen, 'wb')
+            try:
+                r_screen_shot = requests.get(url_screen_cap, timeout=5)
+                if r_screen_shot.status_code == 200:
+                    screen_file.write(r_screen_shot.content())
+                    self.log.info('Capture ScreenShot Success: %s' % stored_screen)
                     break
-        else:
-            log.error('Capture ScreenShot failed.')
+                elif r_screen_shot.status_code == 401:
+                    if retry < 1:
+                        self.log.info('Capture ScreenShot Return 401, will try again')
+                        retry += 1
+                    else:
+                        self.log.info('Capture ScreenShot Failed Because Auth Error. Please check!')
+                        screen_file.close()
+                        return 401
+                elif r_screen_shot.status_code == 404:
+                    self.log.info('Capture ScreenShot Failed Because Resource Not Found.')
+                    return 404
+                else:
+                    self.log.info('Capture Failed Because Unknown Reason. Return Code is %s' % r_screen_shot.status_code)
 
-    def error_prompt(self, filename, lineno):
+            except requests.ConnectionError:
+                self.log.info('Connection Failed. URL -> [%s]' % url_screen_cap)
+                return 500
+
+    def error_prompt(self, filename, line_num):
         import sys
-        cmd = input('file:%s, lines:%s, input fine for continue or exit for terminate the test: ' % (filename, lineno))
+        cmd = input('file:%s, lines:%s, input fine for continue or exit for terminate the test: ' % (filename, line_num))
         if cmd == 'fine':
-            log.war('Check Status Error, Continue AutoTest manually.')
+            self.log.war('Check Status Error, Continue AutoTest manually.')
             pass
         elif cmd == 'exit':
-            log.error('Check Status Error, Terminate AutoTest manually.')
+            self.log.error('Check Status Error, Terminate AutoTest manually.')
             sys.exit()
         else:
-            self.error_prompt(filename, lineno)
-
-
-class Phone3cx(Phone):
-
-    # def _func_name(self):
-    #     import inspect
-    #     return inspect.stack()[1][3]
-
-    def transfer(self, phone, mod='BT'):
-        self.press_key('f_transfer')
-        for number in phone.ext:
-            self.press_key(number)
-
-        if mod == 'AT':
-            self.press_key('pound')
-            if phone.answer('speaker'):
-                self.keep_call(3)
-                self.press_key('f1')
-                if phone.check_status('talking'):
-                    log.info('%s transferred the call to %s' % (self.ext, phone.ext))
-        elif mod == 'SAT':
-            log.war('On 3cx, it is not recommended using Semi-Attended Transfer.')
-            pass
-        elif mod == 'BT':
-            self.press_key('f1')
-            if phone.check_status('ringing'):
-                log.info('%s transferred the call to %s' % (self.ext, phone.ext))
-        else:
-            log.error('Transfer mod error --> ' + mod)
-
-    def set_3cx_status(self, status):
-
-        def dial_service(code):
-            line_key = 'l%s' % self.line
-            self.press_key(line_key)
-            for num in code:
-                self.press_key(num)
-            self.press_key('pound')
-            if self.check_status('talking'):
-                log.info('%s dial service code [%s] success.' % (self.ext, code))
-                time.sleep(4)
-                if self.check_status('idle'):
-                    log.info('%s return to idle.' % self.ext)
-                    return True
-                else:
-                    return False
-
-        if status.upper() == 'AWAY':
-            log.info('Set %s(%s) status on 3cx to %s' % (self.ext, self.ip, status))
-            if dial_service('*31'):
-                return True
-            else:
-                return False
-
-        elif status.upper() == 'DND':
-            log.info('Set %s(%s) status on 3cx to %s' % (self.ext, self.ip, status))
-            if dial_service('*32'):
-                return True
-            else:
-                return False
-
-        elif status.upper() == 'NODND':
-            log.info('Set %s(%s) status on 3cx to %s' % (self.ext, self.ip, status))
-            if dial_service('*60'):
-                return True
-            else:
-                return False
-
-        elif status.upper() == 'LUNCH':
-            log.info('Set %s(%s) status on 3cx to %s' % (self.ext, self.ip, status))
-            if dial_service('*33'):
-                return True
-            else:
-                return False
-
-        elif status.upper() == 'BUSINESS':
-            log.info('Set %s(%s) status on 3cx to %s' % (self.ext, self.ip, status))
-            if dial_service('*34'):
-                return True
-            else:
-                return False
-
-        elif status.upper() == 'AVAILABLE':
-            log.info('Set %s(%s) status on 3cx to %s' % (self.ext, self.ip, status))
-            if dial_service('*30'):
-                return True
-            else:
-                return False
+            self.error_prompt(filename, line_num)

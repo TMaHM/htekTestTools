@@ -1,3 +1,9 @@
+import logging
+import os
+
+# 最大检查次数
+MAX_CHECK_TIMES = 10
+
 # 定义话机状态字典，用于status.py，设置idle态及check状态
 p_status_dir = \
     {
@@ -15,15 +21,15 @@ p_status_dir = \
 
 exp_blf_dir = \
     {
-        'L1' : 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:0',
-        'L2' : 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:1',
-        'L3' : 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:2',
-        'L4' : 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:3',
-        'L5' : 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:4',
-        'L6' : 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:5',
-        'L7' : 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:6',
-        'L8' : 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:7',
-        'L9' : 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:8',
+        'L1': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:0',
+        'L2': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:1',
+        'L3': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:2',
+        'L4': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:3',
+        'L5': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:4',
+        'L6': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:5',
+        'L7': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:6',
+        'L8': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:7',
+        'L9': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:8',
         'L10': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:9',
         'L11': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:10',
         'L12': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:11',
@@ -40,50 +46,50 @@ exp_blf_dir = \
 dsskey_dir = {}
 
 for i in range(1, 37):
-    dsskey_dir['l' + str(i)] = {'type'   : 'linekey' + str(i) + '_type', 'value': 'linekey' + str(i) + '_value',
+    dsskey_dir['l' + str(i)] = {'type': 'linekey' + str(i) + '_type', 'value': 'linekey' + str(i) + '_value',
                                 'account': 'linekey' + str(i) + '_account', 'label': 'linekey' + str(i) + '_label', }
 
 key_type_code_dir = {
-    'N/A'                : '0',
-    'LINE'               : '1',
-    'SPEEDDIAL'          : '2',
-    'BLF'                : '3',
-    'BLF LIST'           : '4',
-    'VOICEMAIL'          : '5',
-    'DIRECT PICKUP'      : '6',
-    'GROUP PICKUP'       : '7',
-    'CALL PARK'          : '8',
-    'INTERCOM'           : '9',
-    'DTMF'               : '10',
-    'PREFIX'             : '11',
-    'LOCAL GROUP'        : '12',
-    'XML GROUP'          : '13',
-    'XML BROWSER'        : '14',
-    'LDAP'               : '15',
+    'N/A': '0',
+    'LINE': '1',
+    'SPEEDDIAL': '2',
+    'BLF': '3',
+    'BLF LIST': '4',
+    'VOICEMAIL': '5',
+    'DIRECT PICKUP': '6',
+    'GROUP PICKUP': '7',
+    'CALL PARK': '8',
+    'INTERCOM': '9',
+    'DTMF': '10',
+    'PREFIX': '11',
+    'LOCAL GROUP': '12',
+    'XML GROUP': '13',
+    'XML BROWSER': '14',
+    'LDAP': '15',
     'NETWORK DIRECTORIES': '16',
-    'CONFERENCE'         : '17',
-    'FORWARD'            : '18',
-    'TRANSFER'           : '19',
-    'HOLD'               : '20',
-    'DND'                : '21',
-    'REDIAL'             : '22',
-    'CALL RETURN'        : '23',
-    'SMS'                : '24',
-    'RECORD'             : '25',
-    'URL RECORD'         : '26',
-    'PAGING'             : '27',
-    'GROUP LISTENING'    : '28',
-    'PUBLIC HOLD'        : '29',
-    'PRIVATE HOLD'       : '30',
-    'HOT DESKING'        : '32',
-    'ACD'                : '33',
-    'ZERO TOUCH'         : '34',
-    'URL'                : '35',
-    'NETWORK GROUP'      : '44',
-    'MULTICAST PAGING'   : '47',
-    'GROUP CALL PARK'    : '51',
-    'CALLPARK RETRIEVE'  : '52',
-    'PULL CALL'          : '53'}
+    'CONFERENCE': '17',
+    'FORWARD': '18',
+    'TRANSFER': '19',
+    'HOLD': '20',
+    'DND': '21',
+    'REDIAL': '22',
+    'CALL RETURN': '23',
+    'SMS': '24',
+    'RECORD': '25',
+    'URL RECORD': '26',
+    'PAGING': '27',
+    'GROUP LISTENING': '28',
+    'PUBLIC HOLD': '29',
+    'PRIVATE HOLD': '30',
+    'HOT DESKING': '32',
+    'ACD': '33',
+    'ZERO TOUCH': '34',
+    'URL': '35',
+    'NETWORK GROUP': '44',
+    'MULTICAST PAGING': '47',
+    'GROUP CALL PARK': '51',
+    'CALLPARK RETRIEVE': '52',
+    'PULL CALL': '53'}
 
 key_account_code_dir = {
     'ACCOUNT1': '0',
@@ -94,16 +100,15 @@ key_account_code_dir = {
     'ACCOUNT6': '5',
 }
 
-import logging, os
-
 
 class Logger:
 
-    def __init__(self, echo:bool=False, clevel=logging.DEBUG, Flevel=logging.DEBUG):
+    def __init__(self, echo: bool = False, clevel=logging.DEBUG, Flevel=logging.DEBUG):
 
         # 当前所在目录的路径
         # root_path = os.path.dirname(os.getcwd())
         root_path = os.getcwd()
+        print(root_path)
         # log及截屏文件存放目录
         # log_dir_path = root_path + '\\log\\' + cur_exec_file_nosuffix + '\\'
         log_dir = root_path + r'/log/'
@@ -125,7 +130,7 @@ class Logger:
         self.logger_info.setLevel(logging.INFO)
         fmt_info = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
         fmt_debug = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
-        # 设置CMD日志
+        # 设置终端日志
         sh = logging.StreamHandler()
         sh.setFormatter(fmt_info)
         sh.setFormatter(fmt_debug)
@@ -155,13 +160,8 @@ class Logger:
     def error(self, message):
         self.logger_info.error(message)
 
-    # def cri(self, message):
-    #     self.logger.critical(message)
 
-log = Logger(echo=False)
-
-max_check_times = 10
-
+# log = Logger(echo=False)
 
 class TestUrl:
     """
