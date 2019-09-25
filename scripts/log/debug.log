@@ -1,0 +1,16 @@
+[2019-09-25 22:24:24] [DEBUG] Try to execute [dial] on 0000, url is --> http://192.168.1.2/Phone_ActionURL&Command=1&Number=0000&Account=1
+[2019-09-25 22:24:24] [DEBUG] Execute dial success [http://192.168.1.2/Phone_ActionURL&Command=1&Number=0000&Account=1].
+[2019-09-25 22:24:26] [DEBUG] Try to execute [check_status] on 0000, url is --> http://192.168.1.2/AutoTest&autoverify=STATE=2
+[2019-09-25 22:24:26] [DEBUG] Execute check_status success [http://192.168.1.2/AutoTest&autoverify=STATE=2].
+[2019-09-25 23:00:08] [DEBUG] Try to execute [dial] on 0000, url is --> http://192.168.1.2/Phone_ActionURL&Command=1&Number=0000&Account=1
+[2019-09-25 23:00:08] [DEBUG] Execute dial success [http://192.168.1.2/Phone_ActionURL&Command=1&Number=0000&Account=1].
+[2019-09-25 23:00:09] [DEBUG] Try to execute [check_status] on 0000, url is --> http://192.168.1.2/AutoTest&autoverify=STATE=2
+[2019-09-25 23:00:09] [DEBUG] Execute check_status success [http://192.168.1.2/AutoTest&autoverify=STATE=2].
+[2019-09-26 00:30:11] [DEBUG] Try to execute [dial] on 0000, url is --> http://192.168.1.2/Phone_ActionURL&Command=1&Number=0000&Account=1
+[2019-09-26 00:30:11] [DEBUG] Execute dial success [http://192.168.1.2/Phone_ActionURL&Command=1&Number=0000&Account=1].
+[2019-09-26 00:30:12] [DEBUG] Try to execute [check_status] on 0000, url is --> http://192.168.1.2/AutoTest&autoverify=STATE=2
+[2019-09-26 00:30:12] [DEBUG] Execute check_status success [http://192.168.1.2/AutoTest&autoverify=STATE=2].
+[2019-09-26 00:31:27] [DEBUG] Try to execute [dial] on 0000, url is --> http://192.168.1.2/Phone_ActionURL&Command=1&Number=0000&Account=1
+[2019-09-26 00:31:27] [DEBUG] Execute dial success [http://192.168.1.2/Phone_ActionURL&Command=1&Number=0000&Account=1].
+[2019-09-26 00:31:28] [DEBUG] Try to execute [check_status] on 0000, url is --> http://192.168.1.2/AutoTest&autoverify=STATE=2
+[2019-09-26 00:31:28] [DEBUG] Execute check_status success [http://192.168.1.2/AutoTest&autoverify=STATE=2].

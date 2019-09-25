@@ -13,7 +13,9 @@ docs/
 htekTestTools/
 ├── htekTestTools.py
 ├── __init__.py
-└── phones.py
+├── phones.py
+└── tests/
+        └──unit_test.py
 scripts/
 └── main.py
 README.md

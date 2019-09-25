@@ -6,13 +6,13 @@ def basic_call(phone_a, phone_b):
     else:
         cnt_success -= 1
         failed_list.append('phone_a failed.')
-    if phone_b.answer('f1') == 200:
-        cnt_success += 1
-    else:
-        cnt_success -= 1
-        failed_list.append('phone_b failed.')
+    # if phone_b.answer('f1') == 200:
+    #     cnt_success += 1
+    # else:
+    #     cnt_success -= 1
+    #     failed_list.append('phone_b failed.')
 
-    if cnt_success == 2:
+    if cnt_success == 1:
         return True
     else:
         return failed_list

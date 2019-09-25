@@ -63,3 +63,16 @@
 [2019-09-25 02:17:06] [ERROR] Return 500. Retry Now! - 9 time(s).
 [2019-09-25 02:17:07] [ERROR] Check status [ringing] Failed!
 [2019-09-25 02:17:12] [INFO] Connection Failed. URL -> [http://10.3.2.69/download_screen]
+[2019-09-25 22:24:16] [ERROR] Execute dial on 3062 Failed. Get http://10.3.2.72/Phone_ActionURL&Command=1&Number=0000&Account=1 connection error...
+[2019-09-25 22:24:16] [INFO] Function Dial return 500 http://10.3.2.72/Phone_ActionURL&Command=1&Number=0000&Account=1 Connection Error......
+[2019-09-25 22:24:26] [INFO] Check status [outgoing] on 192.168.1.2 success after 0 time(s).
+[2019-09-25 22:24:26] [INFO] 0000 dial 0000 success.
+[2019-09-25 23:00:08] [INFO] 0000 try to dial 0000
+[2019-09-25 23:00:09] [INFO] Check status [outgoing] on 192.168.1.2 success after 0 time(s).
+[2019-09-25 23:00:09] [INFO] 0000 dialed 0000 success.
+[2019-09-26 00:30:10] [INFO] 0000 try to dial 0000
+[2019-09-26 00:30:12] [INFO] Check status [outgoing] on 192.168.1.2 success after 0 time(s).
+[2019-09-26 00:30:12] [INFO] 0000 dialed 0000 success.
+[2019-09-26 00:31:27] [INFO] 0000 try to dial 0000
+[2019-09-26 00:31:28] [INFO] Check status [outgoing] on 192.168.1.2 success after 0 time(s).
+[2019-09-26 00:31:28] [INFO] 0000 dialed 0000 success.
