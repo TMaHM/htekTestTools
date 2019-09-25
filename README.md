@@ -41,13 +41,18 @@ usr_data.py -> 用户自定义配置 -> 后期可能会改为使用excel
 phones.py -> 定义了Phone类 -> 接受一系列参数对话机实例化
 
 ```python
+from htekTestTools.phones import Phone
+
 phone = Phone('10.3.2.123', '8724', line=1, usr='admin', pwd='admin')
 ```
 
 htekTestTools.py -> 定义了最终使用的函数
 
 ```python
-basic_call(phone_a, phone_b)
+from htekTestTools.htekTestTools import basic_call
+from data.usr_data import *
+
+basic_call(phone_1, phone_2)
 ```
 
 **4. scripts**
