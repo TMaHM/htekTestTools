@@ -7,4 +7,6 @@ def _get_p_value_of_lk(line: int):
     print(lk_type_pv)
 
 
-_get_p_value_of_lk(11)
+# _get_p_value_of_lk(11)
+if 'default' in key_mode_code_dir.keys():
+    print('yes')

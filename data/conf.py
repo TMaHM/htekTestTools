@@ -19,7 +19,7 @@ p_status_dir = \
         '9': 'conf_hold', '[Conf_Hold]': ['FXSState=0x82', 'CallCtlState=0x8d', 'LCMState=9 '],
     }
 
-exp_blf_dir = \
+exp_key_dir = \
     {
         'L1': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:0',
         'L2': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:1',
@@ -166,46 +166,13 @@ key_type_code_dir = {
     'CALLPARK RETRIEVE': '52',
     'PULL CALL': '53'}
 
-key_mode_dir = {
-    ('linekey1_mode', 'P20600'),
-    ('linekey2_mode', 'P20601'),
-    ('linekey3_mode', 'P20602'),
-    ('linekey4_mode', 'P20603'),
-    ('linekey5_mode', 'P20604'),
-    ('linekey6_mode', 'P20605'),
-    ('linekey7_mode', 'P20606'),
-    ('linekey8_mode', 'P20607'),
-    ('linekey9_mode', 'P20608'),
-    ('linekey10_mode', 'P20609'),
-    ('linekey11_mode', 'P20610'),
-    ('linekey12_mode', 'P20611'),
-    ('linekey13_mode', 'P20612'),
-    ('linekey14_mode', 'P20613'),
-    ('linekey15_mode', 'P20614'),
-    ('linekey16_mode', 'P20615'),
-    ('linekey17_mode', 'P20616'),
-    ('linekey18_mode', 'P20617'),
-    ('linekey19_mode', 'P20618'),
-    ('linekey20_mode', 'P20619'),
-    ('linekey21_mode', 'P20620'),
-    ('linekey22_mode', 'P20621'),
-    ('linekey23_mode', 'P20622'),
-    ('linekey24_mode', 'P20623'),
-    ('linekey25_mode', 'P20624'),
-    ('linekey26_mode', 'P20625'),
-    ('linekey27_mode', 'P20626'),
-    ('linekey28_mode', 'P20627'),
-    ('linekey29_mode', 'P20628'),
-    ('linekey30_mode', 'P20629'),
-    ('linekey31_mode', 'P20630'),
-    ('linekey32_mode', 'P20631'),
-    ('linekey33_mode', 'P20632'),
-    ('linekey34_mode', 'P20633'),
-    ('linekey35_mode', 'P20634'),
-    ('linekey36_mode', 'P20635'),
+key_mode_code_dir = {
+    'default': '0',
+    'lock': '1',
+    'float': '2',
 }
 
-key_account_code_dir = {
+key_acc_code_dir = {
     'ACCOUNT1': '0',
     'ACCOUNT2': '1',
     'ACCOUNT3': '2',
