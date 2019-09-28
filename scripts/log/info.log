@@ -76,3 +76,50 @@
 [2019-09-26 00:31:27] [INFO] 0000 try to dial 0000
 [2019-09-26 00:31:28] [INFO] Check status [outgoing] on 192.168.1.2 success after 0 time(s).
 [2019-09-26 00:31:28] [INFO] 0000 dialed 0000 success.
+[2019-09-28 15:03:44] [INFO] 104 try to dial 102
+[2019-09-28 15:03:45] [INFO] Check status [outgoing] on 10.3.2.186 success after 0 time(s).
+[2019-09-28 15:03:45] [INFO] 104 dialed 102 success.
+[2019-09-28 15:03:45] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-09-28 15:03:45] [INFO] 102 keep the call on for 2 seconds.
+[2019-09-28 15:03:52] [ERROR] Check status [talking] Failed!
+[2019-09-28 15:03:52] [INFO] Capture ScreenShot Return 401, will try again
+[2019-09-28 15:05:42] [INFO] 104 try to dial 102
+[2019-09-28 15:05:44] [INFO] Check status [outgoing] on 10.3.2.186 success after 2 time(s).
+[2019-09-28 15:05:44] [INFO] 104 dialed 102 success.
+[2019-09-28 15:05:44] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-09-28 15:05:44] [INFO] 102 keep the call on for 2 seconds.
+[2019-09-28 15:05:51] [ERROR] Check status [talking] Failed!
+[2019-09-28 15:05:51] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_talking_0928_150551.jpg
+[2019-09-28 15:05:51] [ERROR] Check status failed...But the scripts will continue.
+[2019-09-28 15:06:57] [INFO] 104 try to dial 102
+[2019-09-28 15:06:58] [INFO] Check status [outgoing] on 10.3.2.186 success after 0 time(s).
+[2019-09-28 15:06:58] [INFO] 104 dialed 102 success.
+[2019-09-28 15:06:58] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-09-28 15:06:58] [INFO] 102 keep the call on for 2 seconds.
+[2019-09-28 15:27:23] [INFO] 104 try to dial 102
+[2019-09-28 15:27:24] [INFO] Check status [outgoing] on 10.3.2.186 success after 0 time(s).
+[2019-09-28 15:27:24] [INFO] 104 dialed 102 success.
+[2019-09-28 15:27:24] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-09-28 15:27:24] [INFO] 102 keep the call on for 2 seconds.
+[2019-09-28 15:27:31] [ERROR] Check status [talking] Failed!
+[2019-09-28 15:27:31] [INFO] Capture ScreenShot Return 401, will try again
+[2019-09-28 15:27:31] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_talking_0928_152731.jpg
+[2019-09-28 15:27:31] [ERROR] Check status failed...But the scripts will continue.
+[2019-09-28 15:55:49] [INFO] 2054 try to dial 2055
+[2019-09-28 15:55:51] [INFO] Check status [outgoing] on 10.3.2.186 success after 0 time(s).
+[2019-09-28 15:55:51] [INFO] 2054 dialed 2055 success.
+[2019-09-28 15:55:51] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-09-28 15:55:51] [INFO] 2055 keep the call on for 2 seconds.
+[2019-09-28 15:55:53] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-09-28 15:55:53] [INFO] 10.3.2.123 answered by F1.
+[2019-09-28 15:55:53] [INFO] 2055 keep the call on for 1 seconds.
+[2019-09-28 16:00:07] [INFO] 2054 try to dial 8724
+[2019-09-28 16:00:08] [INFO] Check status [outgoing] on 10.3.2.186 success after 0 time(s).
+[2019-09-28 16:00:08] [INFO] 2054 dialed 8724 success.
+[2019-09-28 16:00:08] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-09-28 16:00:08] [INFO] 8724 keep the call on for 2 seconds.
+[2019-09-28 16:00:10] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-09-28 16:00:10] [INFO] 10.3.2.123 answered by F1.
+[2019-09-28 16:00:10] [INFO] 8724 keep the call on for 1 seconds.
+[2019-09-28 16:00:13] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-09-28 16:00:13] [INFO] 10.3.2.123 The call ended with f4

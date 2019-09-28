@@ -71,6 +71,13 @@ class Phone(TestUrl):
         import inspect
         return inspect.stack()[1][3]
 
+    @staticmethod
+    def _get_p_value_of_lk(line: int):
+        lk_type = 'linekey%s' % line
+        lk_type_pv = line_key_dir[lk_type]['type']
+
+
+
     def prepare_cfg_file(self):
         # 准备cfg.xml文件，主要提供给方法get_line_key和set_line_key使用
         print('Preparing configuration files, please wait...')
@@ -109,6 +116,7 @@ class Phone(TestUrl):
                     return check_success
                 elif result == ['1']:
                     retry_times += 1
+                    self.log.debug('Current status of %s on %s: %s' % (self.ext, self.ip, return_code[1]))
                     time.sleep(0.5)
                     continue
                 else:
@@ -118,6 +126,7 @@ class Phone(TestUrl):
                     return check_failed
             else:
                 self.log.error('Return %s. Retry Now! - %s time(s).' % (return_code[0], retry_times))
+                self.log.debug('Current status of %s on %s: %s' % (self.ext, self.ip, return_code[1]))
                 time.sleep(0.5)
                 retry_times += 1
                 continue
@@ -126,6 +135,14 @@ class Phone(TestUrl):
         screen_cap = self.screen_shot('%s_%s' % (self._func_name(), status))
         if screen_cap == 200:
             return check_failed
+        elif screen_cap == 401:
+            return 401
+        elif screen_cap == 404:
+            return 404
+        elif screen_cap == 500:
+            return 500
+        else:
+            pass
 
     def dial(self, dst_ext: str,):
         """
@@ -159,12 +176,12 @@ class Phone(TestUrl):
         :param cmd: str F1, SPEAKER or OK
         :return: 200->success; 400->get error; 500->connection error
         """
-        if self.check_status('ringing'):
+        if self.check_status('ringing') is True:
             url_answer = '%s%s' % (self.keyboard, cmd.upper())
             r_answer = self.requests_get(url_answer, self._func_name())
             if r_answer[0] == 200:
                 self.keep_call(2)
-                if self.check_status('talking'):
+                if self.check_status('talking') is True:
                     self.log.info('%s answered by %s.' % (self.ip, cmd.upper()))
                     self.keep_call(1)
                     return 200
@@ -261,92 +278,122 @@ class Phone(TestUrl):
         except BaseException:
             self.log.info('Input line key [ %s ] mismatched, need to check.' % key.upper())
 
-    def set_line_key(self, key, k_type, value, account='Account1', label=''):
-        import linecache
-        from itertools import islice
-        # 格式化 k_type 和 account 字符串，采用全大写形式
-        key_type_upper = k_type.upper()
-        account_upper = account.upper()
+    # def set_line_key(self, key, k_type, value, account='Account1', label=''):
+    #     import linecache
+    #     from itertools import islice
+    #     # 格式化 k_type 和 account 字符串，采用全大写形式
+    #     key_type_upper = k_type.upper()
+    #     account_upper = account.upper()
+    #
+    #     # 准备字符串用来在xml文件中匹配，找出传入的key对应的type/value/account/label所在的行
+    #     # 例如LineKey1_Type
+    #     pat_key_type = dsskey_dir[key]['type']
+    #     pat_key_value = dsskey_dir[key]['value']
+    #     pat_key_account = dsskey_dir[key]['account']
+    #     pat_key_label = dsskey_dir[key]['label']
+    #
+    #     # 准备字符串用来在找到的行中，将对应的P值找出
+    #     pat_pv = r'(?<=<)(P\d+)'
+    #
+    #     # 在key_type_code_dir和key_account_code_dir字典中找到传入的k_type和account对应的值
+    #     # 如N/A - 0
+    #     pc_key_type = key_type_code_dir[key_type_upper]
+    #     pc_key_account = key_account_code_dir[account_upper]
+    #
+    #     cfg_xml_file = r'%s/cfg.xml' % os.path.dirname(__file__)
+    #     cnt_line = 0
+    #     lk_start_line = 1616
+    #     lk_end_line = 1866
+    #
+    #     with open(cfg_xml_file, 'r', encoding='utf-8') as f:
+    #         for line in islice(f, lk_start_line, lk_end_line):
+    #             cnt_line += 1
+    #             matched_key_type = re.findall(pat_key_type, line, flags=re.IGNORECASE)
+    #
+    #             if matched_key_type:
+    #                 pv_key_type = re.findall(pat_pv, line)[0]
+    #                 url_set_key_type = '%s%s=%s' % (self.setting, pv_key_type, pc_key_type)
+    #                 r_key_type = self.requests_get(url_set_key_type, self._func_name())
+    #                 if r_key_type[0] == 200:
+    #                     self.log.info('%s set %s as %s success.' % (self.ip, key, k_type))
+    #                 else:
+    #                     self.log.info('%s set %s as %s failed.' % (self.ip, key, k_type))
+    #
+    #                 value_line = linecache.getline(cfg_xml_file, lk_start_line + cnt_line + 2)
+    #                 label_line = linecache.getline(cfg_xml_file, lk_start_line + cnt_line + 3)
+    #                 account_line = linecache.getline(cfg_xml_file, lk_start_line + cnt_line + 4)
+    #                 key_value = re.findall(pat_key_value, value_line, flags=re.IGNORECASE)
+    #                 if key_value:
+    #                     pv_key_value = re.findall(pat_pv, value_line)[0]
+    #                     url_set_key_value = r'%s%s=%s' % (self.setting, pv_key_value, value)
+    #                     r_key_value = self.requests_get(url_set_key_value, self._func_name())
+    #                     if r_key_value[0] == 200:
+    #                         self.log.info('%s set %s value as %s success.' % (self.ip, key, value))
+    #                     else:
+    #                         self.log.info('%s set %s value as %s failed. %s' % (self.ip, key, value, url_set_key_value))
+    #                 else:
+    #                     self.log.info('Can not get key value, please check: [pattern->%s], [value line->%s]' % (pat_key_value, value_line))
+    #
+    #                 key_account = re.findall(pat_key_account, account_line, flags=re.IGNORECASE)
+    #                 if key_account:
+    #                     pv_key_account = re.findall(pat_pv, account_line)[0]
+    #                     url_set_key_account = '%s%s=%s' % (self.setting, pv_key_account, pc_key_account)
+    #                     r_key_account = self.requests_get(url_set_key_account, self._func_name())
+    #                     if r_key_account[0] == 200:
+    #                         self.log.info('%s set %s account as %s success.' % (self.ip, key, account))
+    #                     else:
+    #                         self.log.info('%s set %s account as %s success.' % (self.ip, key, account))
+    #                 else:
+    #                     self.log.info('Can not get key account, please check: [pattern->%s], [account line->%s' % (pat_key_account, account_line))
+    #
+    #                 # 如果不设置label，直接pass
+    #                 # Label设置失败不影响功能，暂时pass
+    #                 if label != '':
+    #                     key_label = re.findall(pat_key_label, label_line, flags=re.IGNORECASE)
+    #                     if key_label:
+    #                         pv_key_label = re.findall(pat_pv, label_line)[0]
+    #                         url_set_key_label = '%s%s=%s' % (self.setting, pv_key_label, label)
+    #                         r_key_label = self.requests_get(url_set_key_label, self._func_name())
+    #                         if r_key_label[0] == 200:
+    #                             self.log.info('%s set %s label as %s success.' % (self.ip, key, label))
+    #                         else:
+    #                             self.log.info(self.ip + ' set label failed.')
+    #                             pass
+    #                     else:
+    #                         self.log.info('Can not get key\'s label, please check: [pattern->%s], [label line->%s]' % (pat_key_label, label_line))
+    #                         pass
+    #                 else:
+    #                     pass
 
-        # 准备字符串用来在xml文件中匹配，找出传入的key对应的type/value/account/label所在的行
-        # 例如LineKey1_Type
-        pat_key_type = dsskey_dir[key]['type']
-        pat_key_value = dsskey_dir[key]['value']
-        pat_key_account = dsskey_dir[key]['account']
-        pat_key_label = dsskey_dir[key]['label']
+    def set_key(self, line: int = None, key_type: str = None, mode: str = 'default', label: str = '', acc: int = 1, ext: str = ''):
+        """
+        设置 line key
+        :param line: int 要设置的line key的序号，如 line=1
+        :param key_type: str 要设置的line key的类型，如 key_type='blf'，所有的key_type 请参见 conf.py 中 key_type_code_dir
+        :param mode: str 要设置的line key的模式，如 mode='lock'，[default, lock, float]
+        :param label: str 要设置的line key的标签， 如 label='Test Key 1'
+        :param acc: int 要设置的line key所属的 Account，如 acc=1
+        :param ext: str 要设置的line key的 extension，一般配合 Call Park 类型使用，如 ext='*98'
+        :return: [200: Success, 400: Failed, 500: Connection Error]
+        """
 
-        # 准备字符串用来在找到的行中，将对应的P值找出
-        pat_pv = r'(?<=<)(P\d+)'
+        if line is not None:
+            # 获取line type的P值和对应的类型的code，以拼接设置line type的url
+            line = 'linekey%s_type' % line
+            pv_line_type = key_type_dir[line]
 
-        # 在key_type_code_dir和key_account_code_dir字典中找到传入的k_type和account对应的值
-        # 如N/A - 0
-        pc_key_type = key_type_code_dir[key_type_upper]
-        pc_key_account = key_account_code_dir[account_upper]
+            key_type = key_type.strip().upper()
+            if key_type in key_type_code_dir:
+                pc_key_type = key_type_code_dir[key_type]
+            else:
+                self.log.error('Key Type [%s] can not match with key_type_code_dir, please check.' % key_type)
+                return 404
+            url_set_key_type = '%s%s=%s' % (self.setting, pv_line_type, pc_key_type)
 
-        cfg_xml_file = r'%s/cfg.xml' % os.path.dirname(__file__)
-        cnt_line = 0
-        lk_start_line = 1616
-        lk_end_line = 1866
 
-        with open(cfg_xml_file, 'r', encoding='utf-8') as f:
-            for line in islice(f, lk_start_line, lk_end_line):
-                cnt_line += 1
-                matched_key_type = re.findall(pat_key_type, line, flags=re.IGNORECASE)
 
-                if matched_key_type:
-                    pv_key_type = re.findall(pat_pv, line)[0]
-                    url_set_key_type = '%s%s=%s' % (self.setting, pv_key_type, pc_key_type)
-                    r_key_type = self.requests_get(url_set_key_type, self._func_name())
-                    if r_key_type[0] == 200:
-                        self.log.info('%s set %s as %s success.' % (self.ip, key, k_type))
-                    else:
-                        self.log.info('%s set %s as %s failed.' % (self.ip, key, k_type))
 
-                    value_line = linecache.getline(cfg_xml_file, lk_start_line + cnt_line + 2)
-                    label_line = linecache.getline(cfg_xml_file, lk_start_line + cnt_line + 3)
-                    account_line = linecache.getline(cfg_xml_file, lk_start_line + cnt_line + 4)
-                    key_value = re.findall(pat_key_value, value_line, flags=re.IGNORECASE)
-                    if key_value:
-                        pv_key_value = re.findall(pat_pv, value_line)[0]
-                        url_set_key_value = r'%s%s=%s' % (self.setting, pv_key_value, value)
-                        r_key_value = self.requests_get(url_set_key_value, self._func_name())
-                        if r_key_value[0] == 200:
-                            self.log.info('%s set %s value as %s success.' % (self.ip, key, value))
-                        else:
-                            self.log.info('%s set %s value as %s failed. %s' % (self.ip, key, value, url_set_key_value))
-                    else:
-                        self.log.info('Can not get key value, please check: [pattern->%s], [value line->%s]' % (pat_key_value, value_line))
-
-                    key_account = re.findall(pat_key_account, account_line, flags=re.IGNORECASE)
-                    if key_account:
-                        pv_key_account = re.findall(pat_pv, account_line)[0]
-                        url_set_key_account = '%s%s=%s' % (self.setting, pv_key_account, pc_key_account)
-                        r_key_account = self.requests_get(url_set_key_account, self._func_name())
-                        if r_key_account[0] == 200:
-                            self.log.info('%s set %s account as %s success.' % (self.ip, key, account))
-                        else:
-                            self.log.info('%s set %s account as %s success.' % (self.ip, key, account))
-                    else:
-                        self.log.info('Can not get key account, please check: [pattern->%s], [account line->%s' % (pat_key_account, account_line))
-
-                    # 如果不设置label，直接pass
-                    # Label设置失败不影响功能，暂时pass
-                    if label != '':
-                        key_label = re.findall(pat_key_label, label_line, flags=re.IGNORECASE)
-                        if key_label:
-                            pv_key_label = re.findall(pat_pv, label_line)[0]
-                            url_set_key_label = '%s%s=%s' % (self.setting, pv_key_label, label)
-                            r_key_label = self.requests_get(url_set_key_label, self._func_name())
-                            if r_key_label[0] == 200:
-                                self.log.info('%s set %s label as %s success.' % (self.ip, key, label))
-                            else:
-                                self.log.info(self.ip + ' set label failed.')
-                                pass
-                        else:
-                            self.log.info('Can not get key\'s label, please check: [pattern->%s], [label line->%s]' % (pat_key_label, label_line))
-                            pass
-                    else:
-                        pass
+        pass
 
     def set_p_value(self, p_value: str, option: str):
         url_set_pv = '{}{}={}'.format(self.setting, p_value.upper(), option)
@@ -487,7 +534,7 @@ class Phone(TestUrl):
             try:
                 r_screen_shot = requests.get(url_screen_cap, timeout=5)
                 if r_screen_shot.status_code == 200:
-                    screen_file.write(r_screen_shot.content())
+                    screen_file.write(r_screen_shot.content)
                     self.log.info('Capture ScreenShot Success: %s' % stored_screen)
                     break
                 elif r_screen_shot.status_code == 401:

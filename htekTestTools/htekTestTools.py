@@ -5,14 +5,19 @@ def basic_call(phone_a, phone_b):
         cnt_success += 1
     else:
         cnt_success -= 1
-        failed_list.append('phone_a failed.')
-    # if phone_b.answer('f1') == 200:
-    #     cnt_success += 1
-    # else:
-    #     cnt_success -= 1
-    #     failed_list.append('phone_b failed.')
+        failed_list.append('phone_a dial failed.')
+    if phone_b.answer('f1') == 200:
+        cnt_success += 1
+    else:
+        cnt_success -= 1
+        failed_list.append('phone_b answer failed.')
+    if phone_b.end_call('f4') == 200:
+        cnt_success += 1
+    else:
+        cnt_success -= 1
+        failed_list.append('phone_b end call failed.')
 
-    if cnt_success == 1:
+    if cnt_success == 3:
         return True
     else:
         return failed_list
