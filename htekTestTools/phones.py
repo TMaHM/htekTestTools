@@ -77,7 +77,7 @@ class Phone(TestUrl):
     def _get_p_value_of_lk(line_num: int):
         """
         通过传入的line key的序号，找出其对应的所有设置项的P值
-        :param line: 要查询P值的line key的序号
+        :param line_num: 要查询P值的line key的序号
         :return: 以字典形式返回line key对应的所有设置项的P值
         """
         pv_of_line = {}
