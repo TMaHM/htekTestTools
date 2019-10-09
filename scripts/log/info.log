@@ -123,3 +123,158 @@
 [2019-09-28 16:00:10] [INFO] 8724 keep the call on for 1 seconds.
 [2019-09-28 16:00:13] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
 [2019-09-28 16:00:13] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 18:09:58] [INFO] 2054 try to dial 8724
+[2019-10-08 18:09:59] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 18:09:59] [INFO] 2054 dialed 8724 success.
+[2019-10-08 18:10:04] [ERROR] Check status [ringing] Failed!
+[2019-10-08 18:10:04] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_ringing_1008_181004.jpg
+[2019-10-08 18:10:06] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 18:10:06] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 18:58:57] [INFO] 2054 try to dial 8724
+[2019-10-08 18:58:58] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 18:58:58] [INFO] 2054 dialed 8724 success.
+[2019-10-08 18:59:03] [ERROR] Check status [ringing] Failed!
+[2019-10-08 18:59:03] [INFO] Capture ScreenShot Return 401, will try again
+[2019-10-08 18:59:03] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_ringing_1008_185903.jpg
+[2019-10-08 18:59:05] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 18:59:05] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 19:10:02] [INFO] 2054 try to dial 8724
+[2019-10-08 19:10:03] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 19:10:03] [INFO] 2054 dialed 8724 success.
+[2019-10-08 19:10:03] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:10:03] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 19:10:05] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:10:05] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 19:10:05] [INFO] 8724 keep the call on for 1 seconds.
+[2019-10-08 19:10:08] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:10:08] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 19:11:05] [INFO] 2054 try to dial 8724
+[2019-10-08 19:11:06] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 19:11:06] [INFO] 2054 dialed 8724 success.
+[2019-10-08 19:11:06] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:11:06] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 19:11:08] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:11:08] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 19:11:08] [INFO] 8724 keep the call on for 1 seconds.
+[2019-10-08 19:11:11] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:11:11] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 19:12:35] [INFO] 2054 try to dial 8724
+[2019-10-08 19:12:36] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 19:12:36] [INFO] 2054 dialed 8724 success.
+[2019-10-08 19:12:36] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:12:36] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 19:12:38] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:12:38] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 19:12:38] [INFO] 8724 keep the call on for 1 seconds.
+[2019-10-08 19:12:41] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:12:41] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 19:13:13] [INFO] 2054 try to dial 8724
+[2019-10-08 19:13:14] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 19:13:14] [INFO] 2054 dialed 8724 success.
+[2019-10-08 19:13:14] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:13:14] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 19:13:16] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:13:16] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 19:13:16] [INFO] 8724 keep the call on for 1 seconds.
+[2019-10-08 19:13:19] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:13:19] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 19:18:31] [INFO] 2054 try to dial 8724
+[2019-10-08 19:18:32] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 19:18:32] [INFO] 2054 dialed 8724 success.
+[2019-10-08 19:18:32] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:18:32] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 19:18:34] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:18:34] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 19:18:34] [INFO] 8724 keep the call on for 1 seconds.
+[2019-10-08 19:18:37] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:18:37] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 19:18:43] [INFO] 2054 try to dial 8724
+[2019-10-08 19:18:44] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 19:18:44] [INFO] 2054 dialed 8724 success.
+[2019-10-08 19:18:44] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:18:44] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 19:18:46] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:18:46] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 19:18:46] [INFO] 8724 keep the call on for 1 seconds.
+[2019-10-08 19:18:49] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 19:18:49] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 20:05:08] [INFO] 2054 try to dial 8724
+[2019-10-08 20:05:09] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 20:05:09] [INFO] 2054 dialed 8724 success.
+[2019-10-08 20:05:09] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 20:05:09] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 20:05:11] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 20:05:11] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 20:05:11] [INFO] 8724 keep the call on for 1 seconds.
+[2019-10-08 20:05:14] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 20:05:14] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 20:09:53] [INFO] 2054 try to dial 8724
+[2019-10-08 20:09:54] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 20:09:54] [INFO] 2054 dialed 8724 success.
+[2019-10-08 20:09:54] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 20:09:54] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 20:09:56] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 20:09:56] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 20:09:56] [INFO] 8724 keep the call on for 1 seconds.
+[2019-10-08 20:09:59] [INFO] Check status [idle] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 20:09:59] [INFO] 10.3.2.123 The call ended with f4
+[2019-10-08 20:20:39] [INFO] 2054 try to dial 8724
+[2019-10-08 20:20:40] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 20:20:40] [INFO] 2054 dialed 8724 success.
+[2019-10-08 20:34:28] [INFO] 2054 try to dial 8724
+[2019-10-08 20:34:29] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 20:34:29] [INFO] 2054 dialed 8724 success.
+[2019-10-08 20:36:08] [INFO] 2054 try to dial 8724
+[2019-10-08 20:36:09] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 20:36:09] [INFO] 2054 dialed 8724 success.
+[2019-10-08 20:48:41] [INFO] 2054 try to dial 8724
+[2019-10-08 20:48:42] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 20:48:42] [INFO] 2054 dialed 8724 success.
+[2019-10-08 22:26:15] [INFO] 2054 try to dial 8724
+[2019-10-08 22:26:16] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 22:26:16] [INFO] 2054 dialed 8724 success.
+[2019-10-08 22:27:13] [INFO] 2054 try to dial 8724
+[2019-10-08 22:27:14] [INFO] Check status [outgoing] on 10.3.2.217 success after 0 time(s).
+[2019-10-08 22:27:14] [INFO] 2054 dialed 8724 success.
+[2019-10-08 22:35:27] [INFO] 2054 try to dial 8724
+[2019-10-08 22:35:33] [ERROR] Check status [outgoing] Failed!
+[2019-10-08 22:35:33] [INFO] Capture ScreenShot Return 401, will try again
+[2019-10-08 22:35:35] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_outgoing_1008_223533.jpg
+[2019-10-08 22:35:35] [INFO] Function Check Status Failed.
+[2019-10-08 22:35:55] [INFO] 2054 try to dial 8724
+[2019-10-08 22:36:01] [ERROR] Check status [outgoing] Failed!
+[2019-10-08 22:36:03] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_outgoing_1008_223601.jpg
+[2019-10-08 22:36:03] [INFO] Function Check Status Failed.
+[2019-10-08 22:36:33] [INFO] 2054 try to dial 8724
+[2019-10-08 22:36:39] [ERROR] Check status [outgoing] Failed!
+[2019-10-08 22:36:41] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_outgoing_1008_223639.jpg
+[2019-10-08 22:36:41] [INFO] Function Check Status Failed.
+[2019-10-08 22:38:22] [INFO] 2054 try to dial 8724
+[2019-10-08 22:38:28] [ERROR] Check status [outgoing] Failed!
+[2019-10-08 22:38:30] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_outgoing_1008_223828.jpg
+[2019-10-08 22:38:30] [INFO] Function Check Status Failed.
+[2019-10-08 22:39:23] [ERROR] Check status [ringing] Failed!
+[2019-10-08 22:39:23] [INFO] Capture ScreenShot Return 401, will try again
+[2019-10-08 22:39:23] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_ringing_1008_223923.jpg
+[2019-10-08 22:39:41] [INFO] 2054 try to dial 8724
+[2019-10-08 22:39:47] [ERROR] Check status [outgoing] Failed!
+[2019-10-08 22:39:50] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_outgoing_1008_223947.jpg
+[2019-10-08 22:39:50] [INFO] Function Check Status Failed.
+[2019-10-08 22:39:50] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 22:39:50] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 22:39:52] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 22:39:52] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 22:39:52] [INFO] 8724 keep the call on for 1 seconds.
+[2019-10-08 22:41:32] [INFO] 2054 try to dial 8724
+[2019-10-08 22:41:38] [ERROR] Check status [outgoing] Failed!
+[2019-10-08 22:41:40] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_outgoing_1008_224138.jpg
+[2019-10-08 22:41:40] [INFO] Function Check Status Failed.
+[2019-10-08 22:42:10] [INFO] 2054 try to dial 8724
+[2019-10-08 22:42:16] [ERROR] Check status [outgoing] Failed!
+[2019-10-08 22:42:18] [INFO] Capture ScreenShot Success: /home/stephen/PycharmProjects/htekTestTools/scripts/log/screenShot/check_status_outgoing_1008_224216.jpg
+[2019-10-08 22:42:18] [INFO] Function Check Status Failed.
+[2019-10-08 22:42:18] [INFO] Check status [ringing] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 22:42:18] [INFO] 8724 keep the call on for 2 seconds.
+[2019-10-08 22:42:20] [INFO] Check status [talking] on 10.3.2.123 success after 0 time(s).
+[2019-10-08 22:42:20] [INFO] 10.3.2.123 answered by F1.
+[2019-10-08 22:42:20] [INFO] 8724 keep the call on for 1 seconds.
