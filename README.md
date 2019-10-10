@@ -38,18 +38,22 @@ usr_data.py -> 用户自定义配置 -> 后期可能会改为使用excel
 
 定义话机类以及基本行为
 
+action.py -> 定义了最终使用的函数
+
 phones.py -> 定义了Phone类 -> 接受一系列参数对话机实例化
 
 实际运用存放路径为
 ./vnev/lib/phthon3.5/Site-package
 ```python
-from PhoneLib import htek_phones
-from PhoneLib import htek_phone_conf
+from PhoneLib.htek_phones import Phone
 
 phone = Phone('10.3.2.123', '8724', line=1, usr='admin', pwd='admin')
 ```
 
-action.py -> 定义了最终使用的函数
+***3.bin***
+存放robot文件以及相关日志、报表
+key_words.robot集中编写keywords，粒度较小
+run.robot集中编写测试用例
 
 ## 已知 BUG
 
