@@ -54,12 +54,6 @@ def basic_call(phone_a, phone_b):
 
 
 def transfer_flow(phone_a, phone_b, phone_c):
-    from PhoneLib.htek_phones import Phone
-
-    phone_a = Phone('10.3.0.1', '1111', line=1)
-    phone_b = Phone('1.1.1.1', '11111', line=2)
-    phone_c = Phone('2.2.2.2', '2222', line=3)
-
     phone_a.dial(phone_b.ext)
     phone_b.transfer(phone_c)
 

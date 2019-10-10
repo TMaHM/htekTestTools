@@ -1,4 +1,5 @@
 # Written by Stephen
+# 该文件在更新后需要同步到 ./venv/lib/python3.5/site-packages/PhoneLib/htek_phones.py
 
 import time
 import re
@@ -39,7 +40,7 @@ class Phone(TestUrl):
         """
         cnt_retry = 0
 
-        while cnt_retry <= 1:
+        while cnt_retry <= 2:
             try:
                 r = requests.get(url, timeout=5)
                 self.log.debug('Try to execute [%s] on %s, url is --> %s' % (func_name, self.ext, url))
@@ -471,11 +472,18 @@ class Phone(TestUrl):
             self.log.error(self.ip + ' Return ' + str(r_end[0]) + ', End call failed.')
             return 400
 
-    def set_idle_status(self):
+    def set_idle_status(self, model: str = 'normal'):
         """
         设置 idle 态，不需要参数
         :return: 200 Success or 400 False
         """
+        # if model is 'normal':
+        #     url_return_idle = self.press_key('x')
+        #     r_return_idle = self.requests_get(url_return_idle, self._func_name())
+        #
+        #
+        # elif model is 'drd':
+
         url_return_idle = self.prefix + '/drd=RETURNIDLE'
         r_return_idle = self.requests_get(url_return_idle, self._func_name())
         if r_return_idle[0] == 200:
@@ -486,6 +494,8 @@ class Phone(TestUrl):
             time.sleep(0.5)
             self.press_key('f4')
             time.sleep(2)
+        elif r_return_idle[0] == 401:
+            self.log.info('401? Are you sure?')
         else:
             self.log.error('%s return %s' % (url_return_idle, r_return_idle[0]))
             return 400

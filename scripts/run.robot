@@ -12,3 +12,12 @@ Case Test 1
     set idle  ${dut_1}
     [Teardown]   sleep call    ${dut_2}
 
+    [Timeout]  20
+
+Case Test 2
+    Log     ${dut_1.check_status('idle')}
+
+Case Test 3
+    ${dut_1} test ${dut_2}
+
+
