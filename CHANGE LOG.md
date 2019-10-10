@@ -1,5 +1,17 @@
 # Htek Auto Test Scripts Change Logs
 
+## 2019-10-11
+
+> Written by Stephen
+
+1. 新增upgrade脚本，定义auto_upgrade及check_fw两个函数
+2. 在PhoneLib.htek_phones中新增reboot方法
+
+## 2019-10-10
+
+> Written by Zoy
+
+
 ## 2019-09-28
 
 > Written by Stephen
