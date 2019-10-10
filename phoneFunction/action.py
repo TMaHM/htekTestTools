@@ -8,8 +8,23 @@ def make_call(phone_a, phone_b):
     return result
 
 
-def answer_call(phone_b):
-    result = phone_b.answer('f1')
+def answer_call(phone):
+    result = phone.answer('speaker')
+    return result
+
+
+def on_hook_call(phone):
+    result = phone.end_call('speaker')
+    return result
+
+
+def set_idle(phone):
+    result = phone.set_idle_status()
+    return result
+
+
+def sleep_call(phone):
+    result = phone.keep_call(3)
     return result
 
 
@@ -39,7 +54,7 @@ def basic_call(phone_a, phone_b):
 
 
 def transfer_flow(phone_a, phone_b, phone_c):
-    from htekTestTools.phones import Phone
+    from PhoneLib.htek_phones import Phone
 
     phone_a = Phone('10.3.0.1', '1111', line=1)
     phone_b = Phone('1.1.1.1', '11111', line=2)
