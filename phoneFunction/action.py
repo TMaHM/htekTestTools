@@ -1,6 +1,10 @@
 # -*- coding: UTF-8 -*-
 # Written by Stephen
 # 2019-10-08
+from PhoneLib.htek_phone_conf import log
+
+
+log.info('hello')
 
 
 def make_call(phone_a, phone_b):
