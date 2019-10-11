@@ -2,10 +2,8 @@
 # Written by Stephen
 # 2019-10-10
 
-from config.usr_data import phone_list
 from PhoneLib.htek_phone_conf import log
 import re
-import time
 import sys
 import os
 
@@ -26,6 +24,32 @@ def ping(phone_list: list):
 
 # ping('www.baidu.com')
 
+def store_config_path(phone):
+    url = 'http://{usr}:{pwd}@{ip}/auto_provision.htm'.format(usr=phone.usr, pwd=phone.pwd, ip=phone.ip)
+    r = phone.requests_get(url, 'Store Config Path')
+    if r[0] == 200:
+        with open('temp_file', 'w', encoding='utf-8') as f:
+            f.write(r[1])
+        with open('temp_file', 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            cnt = 0
+            for line in lines:
+                cnt += 1
+                if 'config_server_path' in line:
+                    pat_result = re.findall(r'(?<=value=\")(.*)(?=\"\sname)', lines[cnt])
+                    if pat_result:
+                        config_path = pat_result[0]
+                    else:
+                        log.error(
+                            'Can not pattern to config server path, please check {line}. '
+                            'BTW, the path will be cleared.'.format(line=lines[cnt]))
+                        phone.error_prompt(sys._getframe().f_lineno)
+                        config_path = 'Blank'
+                    # print(config_path)
+                else:
+                    continue
+            return config_path
+
 
 def auto_upgrade(phones: list, fw_path: str = None, upgrade_mode: str = '1'):
     """
@@ -33,56 +57,39 @@ def auto_upgrade(phones: list, fw_path: str = None, upgrade_mode: str = '1'):
     在升级前获取其config path 路径，以便在升级完成后恢复
     :param phones: 要执行升级操作的话机的列表
     :param fw_path: 升级rom存放的服务器路径
-    :param upgrade_mode: 升级模式
+    :param upgrade_mode: 升级模式, 默认为'1', 即http
     :return: 留存的config server path
     """
+    # 在fw_path为空的情况下, 提示用户输入
+    # 目前直接回车会往下运行, 即如果一定要为空, 那么可以接受fw_path为空. 后面看看是否要限制.
+    while fw_path is None:
+        fw_path = input('Firmware Server Path is None, please write the path: ')
 
     upgrade_executed_list = []
     upgrade_unexecuted_list = []
-
+    phone_info_dir = {}
     for phone in phones:
-        url = 'http://{usr}:{pwd}@{ip}/auto_provision.htm'.format(usr=phone.usr, pwd=phone.pwd, ip=phone.ip)
-        r = phone.requests_get(url, 'Auto Upgrade')
-        if r[0] == 200:
-            with open('temp_file', 'w', encoding='utf-8') as f:
-                f.write(r[1])
-            with open('temp_file', 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-                cnt = 0
-                for line in lines:
-                    cnt += 1
-                    if 'config_server_path' in line:
-                        pat_result = re.findall(r'(?<=value=\")(.*)(?=\"\sname)', lines[cnt])
-                        if pat_result:
-                            config_path = pat_result[0]
-                        else:
-                            log.error(
-                                'Can not pattern to config server path, please check {line}. '
-                                'BTW, the path will be cleared.'.format(line=lines[cnt]))
-                            phone.error_prompt(sys._getframe().f_lineno)
-                            config_path = 'Blank'
-                        # print(config_path)
-                    else:
-                        continue
-                # for循环结束，设置升级所需的P值并重启升级
-                # 设置 fw server path
-                phone.set_p_value('P192', fw_path)
-                # 设置 config server path
-                phone.set_p_value('P237', '%NULL%')
-                # 设置 upgrade protocol
-                phone.set_p_value('P212', upgrade_mode)
-                # 以防万一，关闭 PnP
-                phone.set_p_value('P20165', '0')
-                # 以防万一，关闭 DHCP Option
-                phone.set_p_value('P145', '0')
-                phone.reboot()
-
+        config_path = store_config_path(phone)
+        phone_info_dir[phone.ip] = {}
+        phone_info_dir[phone.ip]['config_path'] = config_path
+        # 设置 fw server path
+        phone_info_dir[phone.ip]['fw_set_flag'] = 1 if phone.set_p_value('P192', fw_path) == 200 else 0
+        # 设置 config server path
+        phone_info_dir[phone.ip]['cfg_set_flag'] = 1 if phone.set_p_value('P237', '%NULL%') == 200 else 0
+        # 设置 upgrade protocol
+        phone_info_dir[phone.ip]['up_mode_set_flag'] = 1 if phone.set_p_value('P212', upgrade_mode) == 200 else 0
+        # 以防万一，关闭 PnP
+        phone_info_dir[phone.ip]['pnp_set_flag'] = 1 if phone.set_p_value('P20165', '0') == 200 else 0
+        # 以防万一，关闭 DHCP Option
+        phone_info_dir[phone.ip]['option_set_flag'] = 1 if phone.set_p_value('P145', '0') == 200 else 0
+        # phone_info_dir[phone.ip]['reboot_flag'] = 1 if phone.set_p_value('P192', fw_path) == 200 else 0
+        for flag in phone_info_dir[phone.ip].values():
+            if flag in (1, config_path):
                 upgrade_executed_list.append(phone.ip)
+            else:
+                upgrade_unexecuted_list.append(phone.ip)
 
-        else:
-            upgrade_unexecuted_list.append(phone.ip)
-
-    return config_path, upgrade_executed_list, upgrade_unexecuted_list
+    return set(upgrade_executed_list), set(upgrade_unexecuted_list), phone_info_dir
 
 
 def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
@@ -154,7 +161,7 @@ def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
                             'On {ip}, failed info is {failed_list}'.format(ip=phone.ip, failed_list=phone_failed_list))
                     check_failed_list.append((phone.ip, phone_failed_list))
 
-    log.info('All need to check: %s, FW check success: %s, check failed: %s' % (len(phone_list), len(check_success_list), len(check_failed_list)))
+    log.info('All need to check: %s, FW check success: %s, check failed: %s' % (len(phones), len(check_success_list), len(check_failed_list)))
 
     fw_check_dir['success'] = check_success_list
     fw_check_dir['failed'] = check_failed_list
@@ -166,13 +173,13 @@ def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
 boot_if = '2.0.5.20(2019-03-07 14:52:00) | 2.0.4.4(2018-01-20 13:33:00)'
 rom_if = '2.0.4.4.81(2019-09-21 15:30:00)'
 img_if = '2.0.4.4.81(2019-09-21 15:30:00)'
-result = check_fw(phone_list, boot_if, rom_if, img_if)
-print(result)
-print(result['failed'])
-if len(result['failed']) == 0:
-    print('All success.')
-else:
-    print(result['failed'][0])
-    print(result['failed'][0][0])
-    print(result['failed'][0][1])
+# result = check_fw(phone_list, boot_if, rom_if, img_if)
+# print(result)
+# print(result['failed'])
+# if len(result['failed']) == 0:
+#     print('All success.')
+# else:
+#     print(result['failed'][0])
+#     print(result['failed'][0][0])
+#     print(result['failed'][0][1])
 # print(check_fw.__doc__)
