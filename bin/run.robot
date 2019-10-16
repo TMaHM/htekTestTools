@@ -1,12 +1,14 @@
 *** Settings ***
-Documentation    Suite description
+Documentation       基础通话业务测试
+Variables             ../config/usr_data.py
+Resource            ./key_words.robot
 
 *** Test Cases ***
-Test title
-    [Tags]    DEBUG
-    Provided precondition
-    When action
-    Then check expectations
+基本呼叫
+    [Tags]    CALL
+    [Documentation]     主叫挂机
+    ${Zoy_UC501} CALL ${Zoy_S505}
+    ${Zoy_S505} ANSWER
 
 *** Keywords ***
 Provided precondition

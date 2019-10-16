@@ -43,7 +43,8 @@ action.py -> 定义了最终使用的函数
 phones.py -> 定义了Phone类 -> 接受一系列参数对话机实例化
 
 实际运用存放路径为
-./vnev/lib/phthon3.5/Site-package
+./venv/lib/python3.5/Site-package
+
 ```python
 from PhoneLib.htek_phones import Phone
 
