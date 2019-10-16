@@ -35,3 +35,12 @@
 
 修改框架目录结构，部分文件名称；
 引入RobotFrameWork；
+
+##2019-10-16
+
+>Writen by Zoy
+
+action.py、key_words.robot新增话机部分基础操作：
+呼叫、应答、挂机、等待、Transfer、DND、状态设置等
+
+
