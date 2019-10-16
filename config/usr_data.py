@@ -39,6 +39,8 @@ class MyPhone(Phone):
 dut_1 = Phone('10.3.2.217', '2054', line=3, usr='admin', pwd='admin')
 dut_2 = Phone('10.3.2.123', '2055', line=2, usr='admin', pwd='admin')
 
-dut_1.set_idle_status()
+stephen_dut = Phone('10.3.2.217', '0000', line=1, usr='admin', pwd='admin')
+
+phone_list = [stephen_dut, dut_2]
 
 MYLIST = ['1', '2', '3']
