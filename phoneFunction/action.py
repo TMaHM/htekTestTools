@@ -2,7 +2,7 @@
 # Written by Stephen
 # 2019-10-08
 from PhoneLib.htek_phone_conf import log
-
+import time
 
 
 
@@ -150,5 +150,6 @@ def reboot_the_phone(phone):
     result = phone.press_key('Reboot')
     return result
 
+
 def fle_in(phone):
-    phone.
+    pass
