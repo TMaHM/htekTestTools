@@ -1,19 +1,14 @@
 # -*- coding: UTF-8 -*-
 # Written by Stephen
 # 2019-10-08
-import time
-from PhoneLib.htek_phone_conf import *
+from PhoneLib.htek_phone_conf import log
 
 
-# 拨号
+
+
 def make_call(phone_a, phone_b):
     result = phone_a.dial(phone_b.ext)
     return result
-
-
-# 应答
-def answer_call(phone_b):
-    result = phone_b.answer('f1')
 
 
 def answer_call(phone):
@@ -36,7 +31,6 @@ def sleep_call(phone):
     return result
 
 
-# 基本呼叫并且应答挂机
 def basic_call(phone_a, phone_b):
     cnt_success = 0
     failed_list = []
@@ -67,6 +61,12 @@ def transfer_flow(phone_a, phone_b, phone_c):
     phone_b.transfer(phone_c)
 
 
+def press_key(phone, key):
+    if key.isdigit():
+        for k in key:
+            phone.press_key(k)
+    else:
+        phone.press_key(key)
 # 挂机
 def end_call(phone):
     result = phone.press_key('F4')
@@ -149,3 +149,6 @@ def disable_the_dnd(phone):
 def reboot_the_phone(phone):
     result = phone.press_key('Reboot')
     return result
+
+def fle_in(phone):
+    phone.

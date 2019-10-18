@@ -1,6 +1,7 @@
 from PhoneLib.htek_phones import Phone
 
 
+dut_1 = Phone('10.3.3.18', '2054', line=3, usr='admin', pwd='admin')
 # phone_1 = Phone('10.3.2.217', '2054', line=3, usr='admin', pwd='admin')
 # phone_2 = Phone('10.3.2.123', '8724', line=1, usr='admin', pwd='admin')
 # phone_3 = Phone('10.3.3.22', '8724', line=1, usr='admin', pwd='admin')
@@ -43,4 +44,4 @@ stephen_dut = Phone('10.3.2.217', '0000', line=1, usr='admin', pwd='admin')
 
 phone_list = [stephen_dut, dut_2]
 
-MYLIST = ['1', '2', '3']
+RING_GROUP = ''

@@ -19,3 +19,6 @@ ${phone 1} test ${phone 2}
     make_call      ${phone 1}      ${phone 2}
     answer_call     ${phone 2}
     on_hook_call    ${phone 2}
+
+${phone} pressed ${key}
+    press key   ${phone}    ${key}
