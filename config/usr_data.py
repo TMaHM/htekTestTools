@@ -11,7 +11,7 @@ dut_2 = Phone('10.3.2.123', '2055', line=2, model='uc912', usr='admin', pwd='adm
 stephen_dut = Phone('10.3.2.217', '0000', line=1, usr='admin', pwd='admin')
 
 drd_UC926 = Phone('192.168.22.56', '0000', line=1, usr='admin', pwd='metro')
-
+drd_UC924E = Phone('10.3.3.68', '0017', line=1, model='uc924E', usr='admin', pwd='metro')
 phone_list = [stephen_dut, dut_2]
 
 RING_GROUP = ''

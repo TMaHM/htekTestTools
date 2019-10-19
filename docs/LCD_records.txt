@@ -39,3 +39,6 @@ Soft Key 1 Size: (120, 38), Pixel: (235, 0, 272, 120)
 Soft Key 2 Size: (120, 38), Pixel: (235, 120, 272, 240)
 Soft Key 3 Size: (120, 38), Pixel: (235, 240, 272, 360)
 Soft Key 4 Size: (120, 38), Pixel: (235, 360, 272, 480)
+
+Model: DRD UC924E
+ACD Top Icon Size: (23, 28), Pixel: (10, 379, 38, 402)
