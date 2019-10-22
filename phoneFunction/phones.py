@@ -413,7 +413,7 @@ class Phone(TestUrl):
 
         if mod == 'AT':
             self.press_key('pound')
-            if phone.answer('speaker'):
+            if phone.answer('speaker') == 200:
                 self.keep_call(3)
                 self.press_key('f1')
         elif mod == 'SAT':

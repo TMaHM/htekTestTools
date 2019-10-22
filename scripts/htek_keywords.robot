@@ -22,3 +22,9 @@ ${phone 1} test ${phone 2}
 
 ${phone} pressed ${key}
     press key   ${phone}    ${key}
+
+${phone} drd acd log in
+    action drd acd log in     ${phone}
+
+${phone} drd acd log out
+    action drd acd log out      ${phone}
