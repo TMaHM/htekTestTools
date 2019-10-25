@@ -16,7 +16,7 @@ def action_answer_call(phone):
 
 
 def action_on_hook_call(phone):
-    result = phone.end_call('speaker')
+    result = phone.end_call('x')
     return result
 
 
@@ -61,26 +61,7 @@ def action_wait(seconds: int):
     return True
 
 
-# 基础Blind Transfer
-def action_blind_transfer_call(phone_1, phone_2):
-    phone_1.transfer(phone_2, mod='BT')
-    return True
-
-
-# AT Transfer
-def action_AT_transfer_call(phone_1, phone_2):
-    phone_1.transfer(phone_2, mod='AT')
-    return True
-
-
-# SAT Transfer
-def action_SAT_transfer_call(phone_1, phone_2):
-    phone_1.transfer(phone_2, mod='SAT')
-    return True
-
-
-# 将话机状态回味为IDLE
-def action_set_phones_idle(phone_list: list):
+def action_set_idle(phone_list: list):
 
     idle_success = 0
     for i in phone_list:
@@ -97,20 +78,25 @@ def action_set_phones_idle(phone_list: list):
         return False
 
 
+def action_transfer(executor, target, mod):
+    result = executor.transfer(target, mod)
+    return result
+
+
 # 静音键
-def action_press_the_mute_key(phone):
+def action_press_mute(phone):
     result = phone.press_key('MUTE')
     return result
 
 
 # 开启DND
-def action_enable_the_dnd(phone):
+def action_dnd_on(phone):
     result = phone.press_key('DNDOn')
     return result
 
 
 # 关闭DND
-def action_disable_the_dnd(phone):
+def action_dnd_off(phone):
     result = phone.press_key('DNDOff')
     return result
 
