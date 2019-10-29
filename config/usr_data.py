@@ -18,7 +18,6 @@ dspg4 = Phone('10.2.4.114', '634', model='uc505')
 dspg5 = Phone('10.2.2.27', '408', model='uc912M')
 
 
-
 daily_uc923_1 = Phone('10.13.0.48', '4005', line=1, model='uc923', usr='admin', pwd='admin')
 daily_uc923_2 = Phone('10.13.0.46', '4012', line=3, model='uc923', usr='admin', pwd='admin')
 daily_uc912e_1 = Phone('10.13.0.88', '4007', line=3, model='uc912e', usr='admin', pwd='admin')
