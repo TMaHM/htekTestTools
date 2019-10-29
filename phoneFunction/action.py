@@ -127,67 +127,62 @@ def action_drd_acd_log_out(phone):
     return result
 
 
-def action_conference(chairman, participants: list):
+def action_init_conference(chairman, part):
     """
     发起会议
-    :param chairman: 主席方
-    :param participants: 参与方，传入变量应为一个Phone的列表，列表长度至少为2
-    :return:
+    :param chairman: 会议主席方
+    :param part: 会议第三方
+    :return:200 success
+            500 failed
     """
-    log.info('=====Conference testing start...=====')
-    parties = len(participants)
-    if parties == 2:
-        log.info('Feature Test -- Conference received 2 participants, will start 3-ways conference testing')
-        part1, part2 = participants
-        pass
-    elif parties == 3:
-        log.info('Feature Test -- Conference received 3 participants, will start 4-ways conference testing')
-        part1, part2, part3 = participants
-        pass
-    elif parties == 4:
-        log.info('Feature Test -- Conference received 4 participants, will start 5-ways conference testing')
-        part1, part2, part3, part4 = participants
-        pass
+
+    log.info('=====Initiate Conference======')
+    if chairman.check_status('talking'):
+        chairman.press_key('f_conference')
+        for number in part.ext:
+            chairman.press_key(number)
+        chairman.press_key('ok')
+        part.answer()
+        chairman.press_key('f_conference')
+        log.info('====Initiate Conference success.=====')
+        return 200
     else:
-        log.error('Feature Test -- Conference need 1 chairman and 2-4 participants, but received %s' % parties)
-        log.info('=====Conference testing end with error...=====')
+        log.error('Chairman is not in talking, but one exist conversation is needed.')
         return 500
 
-    chairman.dial(part1.ext)
-    part1.answer()
-    chairman.press_key('f_conference')
-    for number in part2.ext:
-        chairman.press_key(number)
-    chairman.press_key('pound')
-    part2.answer()
-    chairman.press_key('f_conference')
-    chairman.keep_call(3)
-    if parties == 2:
-        chairman.end_call()
-        log.info('=====Conference testing end success...=====')
-        return 200
-    elif parties > 3:
-        chairman.press_key('f_hold')
-        chairman.press_key('f2')
-        for number in part3.ext:
-            chairman.press_key(number)
-        chairman.press_key('pound')
-        part3.answer()
-        chairman.press_key('f_conference')
-        chairman.keep_call(3)
-        if parties == 4:
-            chairman.press_key('f_hold')
-            chairman.press_key('f2')
-            for number in part4.ext:
-                chairman.press_key(number)
-            chairman.press_key('pound')
-            part4.answer()
-            chairman.press_key('f_conference')
-            chairman.keep_call(3)
-            chairman.end_call('speaker')
-            log.info('=====Conference testing end success...=====')
-            return 200
-        else:
-            chairman.end_call('speaker')
-            log.info('=====Conference testing end success...=====')
-            return 200
+
+def action_add_conf_part(initiator, part):
+    """
+    加入会议成员
+    :param initiator: 添加会议成员的发起方
+    :param part: 要添加入会议的接受方
+    :return:200 success
+            500 failed
+    """
+
+    log.info('=====Add conference part [%s]=====' % part.ext)
+    initiator.press_key('f_hold')
+    initiator.press_key('f2')
+    for number in part.ext:
+        initiator.press_key(number)
+    initiator.press_key('ok')
+    result = part.answer()
+    if result == 200:
+        initiator.press_key('f_conference')
+        log.info('=====Add conference part [%s] success.=====' % part.ext)
+    else:
+        log.error('=====Add conference part [%s] failed, return code: %s.=====' % (part.ext, result))
+        return 500
+
+
+def action_log(level, statement):
+    if level == 'info':
+        log.info(statement)
+    elif level == 'error':
+        log.error(statement)
+    elif level == 'war':
+        log.war(statement)
+    elif level == 'debug':
+        log.debug(statement)
+    else:
+        raise KeyError

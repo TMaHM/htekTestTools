@@ -12,11 +12,17 @@
 
 3. 优化log打印，去除多余的打印
 
+4. 在action中增加了action_log()函数，用以在RF脚本文件中记录日志
+
 * bin
 
 调整了目录结构，在bin下新增一层目录作为Test Suite
 
+* RF脚本 -- conference
 
+重写了五方会议脚本
+
+执行时间缩短了15s(36s->21s)，具体实现在RF文件中通过keywords，而非直接在action.py中实现
 
 ## 2019-10-24
 

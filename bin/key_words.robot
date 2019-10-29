@@ -1,5 +1,4 @@
 *** Setting ***
-Library             ../config/usr_data.py
 Library             ../phoneFunction/action.py
 *** Keywords ***
 ${phone_1} CALL ${phone_2}
@@ -46,6 +45,9 @@ ${phone} Disable DND
     ${result} =     action dnd off          ${phone}
     Should be equal As Integers             ${result}   200
 
-${phone} Initiate Conference ${phone_list}
-    ${result} =     action conference  ${phone}     ${phone_list}
+${chairman} Initiate Conference with ${part}
+    ${result} =     action init conference  ${chairman}     ${part}
     should be equal as integers  ${result}    200
+
+${initiator} Add Conf Part ${part}
+    ${result} =     action add conf part  ${initiator}      ${part}

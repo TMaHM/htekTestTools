@@ -23,8 +23,16 @@ Resource            ./key_words.robot
 #    Wait 3
 #    ${stephen_dut_3} Hang up
 
-Conference
-    FOR     ${index}    IN RANGE    100
-        ${stephen_UC926E} Initiate Conference ${stephen_conf_list}
-        log  ${index}
-    END
+*** Test Cases ***
+单主席五方会议
+    action log  info    >>> 5-ways conference start...
+    ${stephen_UC926E} Call ${stephen_UC912_1}
+    ${stephen_UC912_1} Answer
+    ${stephen_UC926E} Initiate Conference with ${stephen_UC926}
+    wait 1
+    ${stephen_UC926E} Add Conf Part ${stephen_UC505}
+    wait 1
+    ${stephen_UC926E} Add Conf Part ${stephen_UC912_2}
+    wait 3
+    ${stephen_UC926E} Hang Up
+    action log  info    >>> 5-ways conference end...
