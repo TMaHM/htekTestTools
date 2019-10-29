@@ -1,5 +1,23 @@
 # Htek Auto Test Scripts Change Logs
 
+## 2019-10-29
+
+> Written by Stephen
+
+* log
+
+1. 调整了log存放路径的获取方式，现在最外层项目名必须是确定的`htekTestTools`
+
+2. 增加了对log文件是否存在的判断，以及log文件大于5M则备份后清空的判断
+
+3. 优化log打印，去除多余的打印
+
+* bin
+
+调整了目录结构，在bin下新增一层目录作为Test Suite
+
+
+
 ## 2019-10-24
 
 > Written by Stephen

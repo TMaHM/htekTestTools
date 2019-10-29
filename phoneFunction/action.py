@@ -127,3 +127,67 @@ def action_drd_acd_log_out(phone):
     return result
 
 
+def action_conference(chairman, participants: list):
+    """
+    发起会议
+    :param chairman: 主席方
+    :param participants: 参与方，传入变量应为一个Phone的列表，列表长度至少为2
+    :return:
+    """
+    log.info('=====Conference testing start...=====')
+    parties = len(participants)
+    if parties == 2:
+        log.info('Feature Test -- Conference received 2 participants, will start 3-ways conference testing')
+        part1, part2 = participants
+        pass
+    elif parties == 3:
+        log.info('Feature Test -- Conference received 3 participants, will start 4-ways conference testing')
+        part1, part2, part3 = participants
+        pass
+    elif parties == 4:
+        log.info('Feature Test -- Conference received 4 participants, will start 5-ways conference testing')
+        part1, part2, part3, part4 = participants
+        pass
+    else:
+        log.error('Feature Test -- Conference need 1 chairman and 2-4 participants, but received %s' % parties)
+        log.info('=====Conference testing end with error...=====')
+        return 500
+
+    chairman.dial(part1.ext)
+    part1.answer()
+    chairman.press_key('f_conference')
+    for number in part2.ext:
+        chairman.press_key(number)
+    chairman.press_key('pound')
+    part2.answer()
+    chairman.press_key('f_conference')
+    chairman.keep_call(3)
+    if parties == 2:
+        chairman.end_call()
+        log.info('=====Conference testing end success...=====')
+        return 200
+    elif parties > 3:
+        chairman.press_key('f_hold')
+        chairman.press_key('f2')
+        for number in part3.ext:
+            chairman.press_key(number)
+        chairman.press_key('pound')
+        part3.answer()
+        chairman.press_key('f_conference')
+        chairman.keep_call(3)
+        if parties == 4:
+            chairman.press_key('f_hold')
+            chairman.press_key('f2')
+            for number in part4.ext:
+                chairman.press_key(number)
+            chairman.press_key('pound')
+            part4.answer()
+            chairman.press_key('f_conference')
+            chairman.keep_call(3)
+            chairman.end_call('speaker')
+            log.info('=====Conference testing end success...=====')
+            return 200
+        else:
+            chairman.end_call('speaker')
+            log.info('=====Conference testing end success...=====')
+            return 200

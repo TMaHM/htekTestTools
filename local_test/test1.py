@@ -1,33 +1,31 @@
-from PhoneLib.htek_phone_conf import *
-from config.usr_data import *
-from PIL import Image
+import os
+import time
 
-# path = drd_UC924E.screen_shot('test_acd')
-# print(path)
-# img = Image.open(path)
-# print(img.size)
-# crop = img.crop((379, 10, 402, 38))
-# standard_img_path = '{tmp_path}/drd_uc924e_acd.jpg'.format(tmp_path=IMG_STANDARD_PATH)
-# crop.save(standard_img_path)
-# r = drd_UC924E.acd(method='in', solution='drd')
-# print(r)
-# r = drd_UC926.acd(method='in', solution='drd')
-# print(r)
 
-#
-# def capture(phone, solution, func):
-#     path = '{std_path}/{solution}_{model}_{func}.jpg'.format(std_path=IMG_STANDARD_PATH, solution=solution,
-#                                                              model=phone.model.lower(),
-#                                                              func=func)
-#     tmp = phone.screen_shot('test_temp')
-#     img = Image.open(tmp)
-#     pixel = acd_pixel_dir[func][phone.model.lower()][solution.lower()]
-#     cropped = img.crop(pixel)
-#     cropped.save(path)
-#
-#
-# # capture(drd_UC924E, 'drd', 'acd_out')
-#
-# # r = drd_UC924E.acd(method='out', solution='drd')
-# r = drd_UC924E.acd(method='in', solution='drd')
-# print(r)
+log_dir = '../log'
+info_path = '../log/info.log'
+debug_path = '../log/debug.log'
+now_time = time.ctime().split(' ')
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+    open(info_path, 'w').close()
+    open(debug_path, 'w').close()
+else:
+    if not os.path.exists(info_path):
+        open(info_path, 'w').close()
+        open(debug_path, 'w').close()
+    else:
+        info_size = os.path.getsize(info_path)
+        debug_size = os.path.getsize(debug_path)
+        if info_size / 1024 ** 2 > 0.5:
+            os.rename(info_path, '../log/info_bak_%s-%s' % (now_time[4], now_time[2]))
+            print(now_time, now_time[4], now_time[2])
+            open(info_path, 'w').close()
+        else:
+            pass
+        if debug_size / 1024 ** 2 > 0.5:
+            os.rename(debug_path, '../log/debug_bak_%s-%s' % (now_time[4], now_time[2]))
+            print(now_time, now_time[4], now_time[2])
+            open(debug_path, 'w').close()
+        else:
+            print('not here')

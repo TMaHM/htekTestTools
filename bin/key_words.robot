@@ -46,3 +46,6 @@ ${phone} Disable DND
     ${result} =     action dnd off          ${phone}
     Should be equal As Integers             ${result}   200
 
+${phone} Initiate Conference ${phone_list}
+    ${result} =     action conference  ${phone}     ${phone_list}
+    should be equal as integers  ${result}    200
