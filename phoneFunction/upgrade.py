@@ -2,11 +2,13 @@
 # Written by Stephen
 # 2019-10-10
 
-from config.usr_data import *
+# from config.usr_data import *
 import logging
 import re
 import sys
 import os
+from config.usr_data import *
+
 
 
 class Logger:
@@ -251,6 +253,6 @@ def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
     return fw_check_dir
 
 
-# phone_list_1 = (daily_uc923_1, daily_uc923_2, daily_uc912e_1, daily_uc926e_1, daily_uc912g_1)
+phone_list_1 = (daily_uc923_1, daily_uc923_2, daily_uc912e_1, daily_uc926e_1, daily_uc912g_1)
 # for phone in phone_list_1:
 #     auto_upgrade(phone)
