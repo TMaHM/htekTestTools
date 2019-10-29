@@ -3,6 +3,7 @@
 # 2019-10-10
 
 from PhoneLib.htek_phone_conf import log
+from config.usr_data import *
 import re
 import sys
 import os
@@ -12,8 +13,8 @@ def ping(phone_list: list):
     # return_code是一个十六位二进制的数转为十进制，如ping一个无效ip时返回512；但真正的状态码是十六位二进制去掉低八位后，再转成十进制
     # 例如512 对应是 0000001000000000，去掉后八位是 00000010，再转为十进制，为2
     # 参考链接：https://blog.csdn.net/c453787298/article/details/23844907
-    for phone in phone_list:
-        return_code = os.system('ping -c 1 -w 1 %s' % phone.ip)  # 实现pingIP地址的功能，-c1指发送报文一次，-w1指等待1秒
+    for _phone in phone_list:
+        return_code = os.system('ping -c 1 -w 1 %s' % _phone.ip)  # 实现pingIP地址的功能，-c1指发送报文一次，-w1指等待1秒
         ex_int = int('{:016b}'.format(return_code)[0:-8], 2)
         print(ex_int)
         if ex_int:
@@ -24,9 +25,9 @@ def ping(phone_list: list):
 
 # ping('www.baidu.com')
 
-def store_config_path(phone):
-    url = 'http://{usr}:{pwd}@{ip}/auto_provision.htm'.format(usr=phone.usr, pwd=phone.pwd, ip=phone.ip)
-    r = phone.requests_get(url, 'Store Config Path')
+def store_config_path(_phone):
+    url = 'http://{usr}:{pwd}@{ip}/auto_provision.htm'.format(usr=_phone.usr, pwd=_phone.pwd, ip=_phone.ip)
+    r = _phone.requests_get(url, 'Store Config Path')
     if r[0] == 200:
         with open('temp_file', 'w', encoding='utf-8') as f:
             f.write(r[1])
@@ -41,9 +42,9 @@ def store_config_path(phone):
                         config_path = pat_result[0]
                     else:
                         log.error(
-                            'Can not pattern to config server path, please check {line}. '
-                            'BTW, the path will be cleared.'.format(line=lines[cnt]))
-                        phone.error_prompt(sys._getframe().f_lineno)
+                                'Can not pattern to config server path, please check {line}. '
+                                'BTW, the path will be cleared.'.format(line=lines[cnt]))
+                        _phone.error_prompt(sys._getframe().f_lineno)
                         config_path = 'Blank'
                     # print(config_path)
                 else:
@@ -68,26 +69,26 @@ def auto_upgrade(phones: list, fw_path: str = None, upgrade_mode: str = '1'):
     upgrade_executed_list = []
     upgrade_unexecuted_list = []
     phone_info_dir = {}
-    for phone in phones:
-        config_path = store_config_path(phone)
-        phone_info_dir[phone.ip] = {}
-        phone_info_dir[phone.ip]['config_path'] = config_path
+    for _phone in phones:
+        config_path = store_config_path(_phone)
+        phone_info_dir[_phone.ip] = {}
+        phone_info_dir[_phone.ip]['config_path'] = config_path
         # 设置 fw server path
-        phone_info_dir[phone.ip]['fw_set_flag'] = 1 if phone.set_p_value('P192', fw_path) == 200 else 0
+        phone_info_dir[_phone.ip]['fw_set_flag'] = 1 if _phone.set_p_value('P192', fw_path) == 200 else 0
         # 设置 config server path
-        phone_info_dir[phone.ip]['cfg_set_flag'] = 1 if phone.set_p_value('P237', '%NULL%') == 200 else 0
+        phone_info_dir[_phone.ip]['cfg_set_flag'] = 1 if _phone.set_p_value('P237', '%NULL%') == 200 else 0
         # 设置 upgrade protocol
-        phone_info_dir[phone.ip]['up_mode_set_flag'] = 1 if phone.set_p_value('P212', upgrade_mode) == 200 else 0
+        phone_info_dir[_phone.ip]['up_mode_set_flag'] = 1 if _phone.set_p_value('P212', upgrade_mode) == 200 else 0
         # 以防万一，关闭 PnP
-        phone_info_dir[phone.ip]['pnp_set_flag'] = 1 if phone.set_p_value('P20165', '0') == 200 else 0
+        phone_info_dir[_phone.ip]['pnp_set_flag'] = 1 if _phone.set_p_value('P20165', '0') == 200 else 0
         # 以防万一，关闭 DHCP Option
-        phone_info_dir[phone.ip]['option_set_flag'] = 1 if phone.set_p_value('P145', '0') == 200 else 0
+        phone_info_dir[_phone.ip]['option_set_flag'] = 1 if _phone.set_p_value('P145', '0') == 200 else 0
         # phone_info_dir[phone.ip]['reboot_flag'] = 1 if phone.set_p_value('P192', fw_path) == 200 else 0
-        for flag in phone_info_dir[phone.ip].values():
+        for flag in phone_info_dir[_phone.ip].values():
             if flag in (1, config_path):
-                upgrade_executed_list.append(phone.ip)
+                upgrade_executed_list.append(_phone.ip)
             else:
-                upgrade_unexecuted_list.append(phone.ip)
+                upgrade_unexecuted_list.append(_phone.ip)
 
     return set(upgrade_executed_list), set(upgrade_unexecuted_list), phone_info_dir
 
@@ -119,10 +120,10 @@ def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
     fw_check_dir = {}
     check_success_list = []
     check_failed_list = []
-    for phone in phones:
+    for _phone in phones:
         phone_failed_list = []
-        index_url = 'http://{usr}:{pwd}@{ip}/index.htm'.format(usr=phone.usr, pwd=phone.pwd, ip=phone.ip)
-        r_index = phone.requests_get(index_url, 'check fw')
+        index_url = 'http://{usr}:{pwd}@{ip}/index.htm'.format(usr=_phone.usr, pwd=_phone.pwd, ip=_phone.ip)
+        r_index = _phone.requests_get(index_url, 'check fw')
         if r_index[0] == 200:
             with open('temp_file', 'w', encoding='utf-8') as f:
                 f.write(r_index[1])
@@ -153,33 +154,24 @@ def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
                                 # print(real_info[0])
                                 phone_failed_list.append(real_info[0])
                             else:
-                                phone_failed_list.append('{failed_check} may be failed.'.format(failed_check=failed_check[1]))
+                                phone_failed_list.append(
+                                    '{failed_check} may be failed.'.format(failed_check=failed_check[1]))
                     if len(phone_failed_list) == 0:
                         log.info('On {ip}, all fw info checked success.')
                     else:
                         log.info(
-                            'On {ip}, failed info is {failed_list}'.format(ip=phone.ip, failed_list=phone_failed_list))
-                    check_failed_list.append((phone.ip, phone_failed_list))
+                                'On {ip}, failed info is {failed_list}'.format(ip=_phone.ip,
+                                                                               failed_list=phone_failed_list))
+                    check_failed_list.append((_phone.ip, phone_failed_list))
 
-    log.info('All need to check: %s, FW check success: %s, check failed: %s' % (len(phones), len(check_success_list), len(check_failed_list)))
+    log.info('All need to check: %s, FW check success: %s, check failed: %s' % (
+        len(phones), len(check_success_list), len(check_failed_list)))
 
     fw_check_dir['success'] = check_success_list
     fw_check_dir['failed'] = check_failed_list
     return fw_check_dir
 
-    # auto_upgrade(phone_list)
 
-
-boot_if = '2.0.5.20(2019-03-07 14:52:00) | 2.0.4.4(2018-01-20 13:33:00)'
-rom_if = '2.0.4.4.81(2019-09-21 15:30:00)'
-img_if = '2.0.4.4.81(2019-09-21 15:30:00)'
-# result = check_fw(phone_list, boot_if, rom_if, img_if)
-# print(result)
-# print(result['failed'])
-# if len(result['failed']) == 0:
-#     print('All success.')
-# else:
-#     print(result['failed'][0])
-#     print(result['failed'][0][0])
-#     print(result['failed'][0][1])
-# print(check_fw.__doc__)
+phone_list_1 = (daily_uc923_1, daily_uc923_2, daily_uc912e_1, daily_uc926e_1, daily_uc912g_1)
+for phone in phone_list_1:
+    auto_upgrade(phone)
