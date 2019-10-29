@@ -2,11 +2,88 @@
 # Written by Stephen
 # 2019-10-10
 
-from PhoneLib.htek_phone_conf import log
 from config.usr_data import *
+import logging
 import re
 import sys
 import os
+
+
+class Logger:
+
+    def __init__(self, echo: bool = False, clevel=logging.DEBUG, Flevel=logging.DEBUG):
+        import time
+
+        # log及截屏文件存放目录
+        log_dir = r'./upgrade_log/'
+        info_path = log_dir + r'info.log'
+        debug_path = log_dir + r'debug.log'
+        # 当天的月，日
+        now_month = time.ctime().split(' ')[1]
+        now_date = time.ctime().split(' ')[2]
+
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+            open(info_path, 'w').close()
+            open(debug_path, 'w').close()
+        else:
+            if not os.path.exists(info_path):
+                open(info_path, 'w').close()
+                open(debug_path, 'w').close()
+            else:
+                info_size = os.path.getsize(info_path)
+                debug_size = os.path.getsize(debug_path)
+                if info_size / 1024 ** 2 > 5:
+                    log.info('---Backup info.log because large than 5M.----')
+                    os.rename('{dir}backup/info_bak_{month}{date}.log'.format(dir=log_dir, month=now_month, date=now_date))
+                    open(info_path, 'w').close()
+                else:
+                    pass
+                if debug_size / 1024 ** 2 > 5:
+                    log.info('---Backup debug.log because large than 5M---')
+                    os.rename('{dir}backup/debug_bak_{month}{date}.log'.format(dir=log_dir, month=now_month, date=now_date))
+                    open(debug_path, 'w').close()
+                else:
+                    pass
+
+        self.logger_debug = logging.getLogger(info_path)
+        self.logger_info = logging.getLogger(debug_path)
+        self.logger_debug.setLevel(logging.DEBUG)
+        self.logger_info.setLevel(logging.INFO)
+        fmt_info = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+        fmt_debug = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+        # 设置终端日志
+        sh = logging.StreamHandler()
+        sh.setFormatter(fmt_info)
+        sh.setFormatter(fmt_debug)
+        sh.setLevel(clevel)
+        # 设置文件日志
+        fh_info = logging.FileHandler(info_path)
+        fh_debug = logging.FileHandler(debug_path)
+        fh_info.setFormatter(fmt_info)
+        fh_debug.setFormatter(fmt_debug)
+        fh_info.setLevel(Flevel)
+        fh_debug.setLevel(Flevel)
+        if echo:
+            self.logger_info.addHandler(sh)
+            self.logger_debug.addHandler(sh)
+        self.logger_info.addHandler(fh_info)
+        self.logger_debug.addHandler(fh_debug)
+
+    def debug(self, message):
+        self.logger_debug.debug(message)
+
+    def info(self, message):
+        self.logger_info.info(message)
+
+    def war(self, message):
+        self.logger_info.warning(message)
+
+    def error(self, message):
+        self.logger_info.error(message)
+
+
+log = Logger(echo=False)
 
 
 def ping(phone_list: list):
