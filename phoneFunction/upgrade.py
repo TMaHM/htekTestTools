@@ -35,13 +35,15 @@ class Logger:
                 debug_size = os.path.getsize(debug_path)
                 if info_size / 1024 ** 2 > 5:
                     log.info('---Backup info.log because large than 5M.----')
-                    os.rename('{dir}backup/info_bak_{month}{date}.log'.format(dir=log_dir, month=now_month, date=now_date))
+                    os.rename(info_path, '{dir}backup/info_bak_{month}{date}.log'.format(dir=log_dir, month=now_month,
+                                                                                         date=now_date))
                     open(info_path, 'w').close()
                 else:
                     pass
                 if debug_size / 1024 ** 2 > 5:
                     log.info('---Backup debug.log because large than 5M---')
-                    os.rename('{dir}backup/debug_bak_{month}{date}.log'.format(dir=log_dir, month=now_month, date=now_date))
+                    os.rename(debug_path, '{dir}backup/debug_bak_{month}{date}.log'.format(dir=log_dir, month=now_month,
+                                                                                           date=now_date))
                     open(debug_path, 'w').close()
                 else:
                     pass
@@ -232,7 +234,7 @@ def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
                                 phone_failed_list.append(real_info[0])
                             else:
                                 phone_failed_list.append(
-                                    '{failed_check} may be failed.'.format(failed_check=failed_check[1]))
+                                        '{failed_check} may be failed.'.format(failed_check=failed_check[1]))
                     if len(phone_failed_list) == 0:
                         log.info('On {ip}, all fw info checked success.')
                     else:
