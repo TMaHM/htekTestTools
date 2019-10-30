@@ -250,6 +250,7 @@ class Logger:
 
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
+            os.makedirs('{dir}backup'.format(dir=log_dir))
             open(info_path, 'w').close()
             open(debug_path, 'w').close()
         else:
@@ -257,17 +258,18 @@ class Logger:
                 open(info_path, 'w').close()
                 open(debug_path, 'w').close()
             else:
+                os.makedirs('{dir}backup'.format(dir=log_dir))
                 info_size = os.path.getsize(info_path)
                 debug_size = os.path.getsize(debug_path)
                 if info_size / 1024 ** 2 > 5:
-                    log.info('---Backup info.log because large than 5M.----')
+                    print('---Backup info.log because large than 5M.----')
                     os.rename(info_path, '{dir}backup/info_bak_{month}{date}.log'.format(dir=log_dir, month=now_month,
                                                                                          date=now_date))
                     open(info_path, 'w').close()
                 else:
                     pass
                 if debug_size / 1024 ** 2 > 5:
-                    log.info('---Backup debug.log because large than 5M---')
+                    print('---Backup debug.log because large than 5M---')
                     os.rename(debug_path, '{dir}backup/debug_bak_{month}{date}.log'.format(dir=log_dir, month=now_month,
                                                                                            date=now_date))
                     open(debug_path, 'w').close()
