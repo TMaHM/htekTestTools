@@ -259,7 +259,10 @@ class Logger:
                 open(info_path, 'w').close()
                 open(debug_path, 'w').close()
             else:
-                os.makedirs('{dir}backup'.format(dir=log_dir))
+                if not os.path.exists('{dir}bakcup'.format(dir=log_dir)):
+                    os.makedirs('{dir}backup'.format(dir=log_dir))
+                else:
+                    pass
                 info_size = os.path.getsize(info_path)
                 debug_size = os.path.getsize(debug_path)
                 if info_size / 1024 ** 2 > 5:
