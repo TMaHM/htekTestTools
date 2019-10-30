@@ -19,3 +19,4 @@ Resource            ../key_words.robot
         wait 3
         ${daily_uc923_1} Hang Up
         action log  info    >>> 5-ways conference end...
+    END

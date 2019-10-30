@@ -253,4 +253,4 @@ def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
 
 phone_list_1 = (daily_uc923_1, daily_uc923_2, daily_uc912e_1, daily_uc926e_1, daily_uc912g_1)
 for phone in phone_list_1:
-    auto_upgrade(phone)
+    auto_upgrade(phone, 'test')
