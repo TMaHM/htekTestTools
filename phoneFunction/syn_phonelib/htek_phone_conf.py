@@ -239,6 +239,7 @@ class Logger:
 
         # log及截屏文件存放目录
         log_dir = PROJECT_ROOT_PATH + r'log/'
+        log_backup = log_dir + r'backup/'
         self.screen_dir = log_dir + r'screenShot'
         # log文件绝对路径
         info_path = log_dir + r'info.log'
@@ -251,7 +252,7 @@ class Logger:
 
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
-            os.makedirs('{dir}backup'.format(dir=log_dir))
+            os.makedirs(log_backup)
             open(info_path, 'w').close()
             open(debug_path, 'w').close()
         else:
@@ -259,8 +260,8 @@ class Logger:
                 open(info_path, 'w').close()
                 open(debug_path, 'w').close()
             else:
-                if not os.path.exists('{dir}bakcup'.format(dir=log_dir)):
-                    os.makedirs('{dir}backup'.format(dir=log_dir))
+                if not os.path.exists(log_backup):
+                    os.makedirs(log_backup)
                 else:
                     pass
                 info_size = os.path.getsize(info_path)
@@ -268,16 +269,16 @@ class Logger:
                 if info_size / 1024 ** 2 > 5:
                     print('---Backup info.log because large than 5M.----')
                     os.rename(info_path,
-                              '{dir}backup/info_bak_{month}{date}{time}.log'.format(dir=log_dir, month=now_month,
-                                                                                    date=now_date, time=now_time))
+                              '{dir}info_bak_{month}{date}{time}.log'.format(dir=log_backup, month=now_month,
+                                                                             date=now_date, time=now_time))
                     open(info_path, 'w').close()
                 else:
                     pass
                 if debug_size / 1024 ** 2 > 5:
                     print('---Backup debug.log because large than 5M---')
                     os.rename(debug_path,
-                              '{dir}backup/debug_bak_{month}{date}{time}.log'.format(dir=log_dir, month=now_month,
-                                                                                     date=now_date, time=now_time))
+                              '{dir}debug_bak_{month}{date}{time}.log'.format(dir=log_backup, month=now_month,
+                                                                              date=now_date, time=now_time))
                     open(debug_path, 'w').close()
                 else:
                     pass
