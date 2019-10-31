@@ -131,7 +131,7 @@ def store_config_path(_phone):
             return config_path
 
 
-def auto_upgrade(phones: list, fw_path: str = None, upgrade_mode: str = '1'):
+def auto_upgrade(phones: tuple, fw_path: str = None, upgrade_mode: str = '1'):
     """
     对一个话机列表进行升级
     在升级前获取其config path 路径，以便在升级完成后恢复
@@ -172,7 +172,7 @@ def auto_upgrade(phones: list, fw_path: str = None, upgrade_mode: str = '1'):
     return set(upgrade_executed_list), set(upgrade_unexecuted_list), phone_info_dir
 
 
-def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
+def check_fw(phones: tuple, boot_info: str, rom_info: str, img_info: str):
     """
     根据给定的fw信息，检查指定设备是否匹配
     :param phones: 待检查的话机列表
@@ -252,5 +252,4 @@ def check_fw(phones: list, boot_info: str, rom_info: str, img_info: str):
 
 
 phone_list_1 = (daily_uc923_1, daily_uc923_2, daily_uc912e_1, daily_uc926e_1, daily_uc912g_1)
-for phone in phone_list_1:
-    auto_upgrade(phone, 'test')
+auto_upgrade(phone_list_1, 'test')
