@@ -2,7 +2,6 @@
 
 import time
 import re
-import sys
 import requests
 import traceback
 
@@ -40,6 +39,7 @@ class Phone(TestUrl):
         """
         cnt_retry = 0
 
+        r = None
         while cnt_retry <= 2:
             try:
                 r = requests.get(url, timeout=5)
@@ -59,7 +59,7 @@ class Phone(TestUrl):
                     return 404, 'Not Found'
                 else:
                     log.error(
-                        'Execute %s on %s Failed. %s return %s...' % (func_name, self.ext, url, r.status_code))
+                            'Execute %s on %s Failed. %s return %s...' % (func_name, self.ext, url, r.status_code))
                     return r.status_code, 'Get Failed'
 
             except requests.ConnectionError:
@@ -67,13 +67,19 @@ class Phone(TestUrl):
                 log.debug(traceback.format_exc())
                 return 500, '%s Connection Error...' % url
 
-        log.error('Auth Failed on %s, Return code is %s, please verify it ...' % (self.ip, r.status_code))
+            except requests.ReadTimeout:
+                log.error('Connection to %s timeout.' % url)
+                log.debug(traceback.format_exc())
+                return 500, '%s Connection Timeout...' % url
+        else:
+            log.error('Auth Failed on %s, Return code is %s, please verify it ...' % (self.ip, r.status_code))
         return r.status_code, 'Auth Failed'
 
     @staticmethod
     def _func_name():
         # 返回当前运行的方法名，作为requests_get方法的参数->name
         import inspect
+
         return inspect.stack()[1][3]
 
     @staticmethod
@@ -127,6 +133,7 @@ class Phone(TestUrl):
             pat_return_code = r'(?<=<Return>)(\d)(?=</Return>)'
             url_check_status = '%s%s' % (self.url_status, code)
 
+        return_code = None
         while retry_times < MAX_CHECK_TIMES:
             return_code = self.requests_get(url_check_status, self._func_name())
             if return_code[0] == 200:
@@ -145,7 +152,7 @@ class Phone(TestUrl):
                     self.screen_shot(self._func_name())
                     return check_failed
             elif return_code[0] == 401:
-                log.error('Return 401. Retry Now! - %s time(s).' % (return_code[0], retry_times))
+                log.error('Return 401. Retry Now! - %s time(s).' % retry_times)
                 log.debug('Current status of %s on %s: %s' % (self.ext, self.ip, return_code[1]))
                 time.sleep(0.5)
                 retry_times += 1
@@ -153,10 +160,10 @@ class Phone(TestUrl):
             else:
                 log.error('Return code is %s, Request Terminated.' % return_code[0])
                 return check_failed
-
-        log.error('Check status [%s] on %s Failed!' % (status, self.ext))
-        log.error('Return code is %s, Return content is \n%s' % (return_code[0], return_code[1]))
-        screen_cap = self.screen_shot('%s_%s' % (self._func_name(), status))
+        else:
+            log.error('Check status [%s] on %s Failed!' % (status, self.ext))
+            log.error('Return code is %s, Return content is \n%s' % (return_code[0], return_code[1]))
+        self.screen_shot('%s_%s' % (self._func_name(), status))
         return check_failed
 
     def dial(self, dst_ext: str, ):
@@ -290,10 +297,10 @@ class Phone(TestUrl):
                 else:
                     continue
 
-            key_property = {'type': '%s' % real_key_type,
-                            'value': '%s' % real_key_value,
+            key_property = {'type':    '%s' % real_key_type,
+                            'value':   '%s' % real_key_value,
                             'account': '%s' % real_key_account,
-                            'label': '%s' % real_key_label}
+                            'label':   '%s' % real_key_label}
             log.info('Check LineKey_%s properties return: %s' % (line_key_num[0], key_property))
 
             cfg_file.close()
@@ -332,14 +339,14 @@ class Phone(TestUrl):
                 pc_key_type = key_type_code_dir[key_type]
             else:
                 log.error(
-                    'Key %s Type [%s] can not match with key_type_code_dir, please check.' % (key_line, key_type))
+                        'Key %s Type [%s] can not match with key_type_code_dir, please check.' % (key_line, key_type))
                 return 404
 
             if key_mode in key_mode_code_dir:
                 pc_key_mode = key_mode_code_dir[key_mode]
             else:
                 log.error(
-                    'Key %s Mode [%s] can not match with key_mode_code_dir, please check.' % (key_line, key_mode))
+                        'Key %s Mode [%s] can not match with key_mode_code_dir, please check.' % (key_line, key_mode))
                 return 404
 
             key_acc = 'ACCOUNT%s' % key_acc
@@ -347,7 +354,7 @@ class Phone(TestUrl):
                 pc_key_acc = key_acc_code_dir[key_acc]
             else:
                 log.error(
-                    'Key %s Mode [%s] can not match with key_mode_code_dir, please check.' % (key_line, key_acc))
+                        'Key %s Mode [%s] can not match with key_mode_code_dir, please check.' % (key_line, key_acc))
                 return 404
 
             # 调用set_p_value方法发送设置P值请求
@@ -413,8 +420,8 @@ class Phone(TestUrl):
         """
         if isinstance(target, Phone) is not True:
             log.error(
-                'Transfer method need a Phone(type class) as parameter.\n'
-                'But the recieved parameter is type: %s' % type(target))
+                    'Transfer method need a Phone(type class) as parameter.\n'
+                    'But the recieved parameter is type: %s' % type(target))
             return 405
         else:
             pass
@@ -437,7 +444,7 @@ class Phone(TestUrl):
 
         if mod == 'AT':
             log.info(
-                '{executor} execute [Attended Transfer] to {target}'.format(executor=self.ext, target=target.ext))
+                    '{executor} execute [Attended Transfer] to {target}'.format(executor=self.ext, target=target.ext))
             self.press_key('OK')
             if target.answer() == 200:
                 self.press_key('f_transfer')
@@ -449,7 +456,7 @@ class Phone(TestUrl):
             log.info('{executor} execute [Semi-Attended Transfer] to {target}'.format(executor=self.ext,
                                                                                       target=target.ext))
             self.press_key('OK')
-            if phone.check_status('ringing') is True:
+            if target.check_status('ringing') is True:
                 self.press_key('f_transfer')
                 return 200
             else:
@@ -516,6 +523,7 @@ class Phone(TestUrl):
         Broadsoft 平台的 Flexible Seating 登入登出功能
         在登入或者登出后，通过图片对比的方法判断是否执行成功
         :param method: srt, 要执行的操作, In or Out
+        :param solution: str, 执行此功能的账号的solution，例如DRD or RoutIT
         :param aid: int, 默认值为0, 一般也为0
         :param number: str, 登入时需要的User ID
         :param pwd: str, 登入时需要的Password
@@ -539,18 +547,18 @@ class Phone(TestUrl):
             temp_img = '{tmp_path}/temp_img.jpg'.format(tmp_path=IMG_TEMP_PATH)
             # 正确图片路径
             standard_img = '{path}/{solution}_{model}_flx_{method}.jpg'.format(path=IMG_STANDARD_PATH,
-                                                                               solution=self.solution.lower(),
+                                                                               solution=solution.lower(),
                                                                                model=self.model.lower(),
                                                                                method=method.lower())
             # 截屏裁剪部分相对于截屏的像素点元组
             try:
-                crop_pixel = pixel_dir['flx_{}'.format(method.lower())][self.model.lower()][solution.lower()]
+                crop_pixel = flx_pixel_dir['flx_{}'.format(method.lower())][self.model.lower()][solution.lower()]
             except KeyError:
                 log.error('Key Error, can not search on pixel_dir.')
                 log.debug(traceback.format_exc())
                 return 500
 
-            if captured_img.isdigit() is not True:
+            if captured_img[0] == 200:
                 cropping_img(captured_img, temp_img, crop_pixel)
                 result = comparing_img(temp_img, standard_img)
                 if result is not None and result <= 10:
@@ -567,9 +575,11 @@ class Phone(TestUrl):
     def acd(self, method: str = None, solution: str = None, aid: int = 0):
         method = method.upper()
         if method in ('IN', 'OUT',):
-            url_acd_method = '{drd_pre}ACD:LOG{method}:aid=0'.format(drd_pre=self.url_drd_prefix, method=method)
+            url_acd_method = '{drd_pre}ACD:LOG{method}:aid={aid}'.format(drd_pre=self.url_drd_prefix, method=method,
+                                                                         aid=aid)
         elif method in ('AVAILABLE', 'WRAPUP'):
-            url_acd_method = '{drd_pre}ACD:{method}:aid=0'.format(drd_pre=self.url_drd_prefix, method=method)
+            url_acd_method = '{drd_pre}ACD:{method}:aid={aid}'.format(drd_pre=self.url_drd_prefix, method=method,
+                                                                      aid=aid)
         elif method in ('UNAVAILABLE', 'DISPCODE'):
             url_acd_method = '{drd_pre}ACD:{method}'
         else:
@@ -588,13 +598,13 @@ class Phone(TestUrl):
             # print(standard_img)
             # 截屏裁剪部分相对于截屏的像素点元组
             try:
-                crop_pixel = pixel_dir['acd_{}'.format(method.lower())][self.model.lower()][solution.lower()]
+                crop_pixel = acd_pixel_dir['acd_{}'.format(method.lower())][self.model.lower()][solution.lower()]
             except KeyError:
                 log.error('Key Error, can not search on pixel_dir.')
                 log.debug(traceback.format_exc())
                 return 500
             # 如果截屏成功，打开后进行裁剪，存为临时文件temp_img并和正确的图片进行对比
-            if captured_img.isdigit() is not True:  # not True 说明返回了截屏文件路径
+            if captured_img[0] == 200:
                 cropping_img(captured_img, temp_img, crop_pixel)
                 result = comparing_img(temp_img, standard_img)
                 # print(result)
@@ -700,13 +710,18 @@ class Phone(TestUrl):
                     return 404, 'URL Not Found.'
                 else:
                     log.info(
-                        'Capture Failed Because Unknown Reason. Return Code is %s' % r_screen_shot.status_code)
+                            'Capture Failed Because Unknown Reason. Return Code is %s' % r_screen_shot.status_code)
                     return 500, 'Connection Failed.'
 
             except requests.ConnectionError:
                 log.info('Connection Failed. URL -> [%s]' % url_screen_cap)
                 log.debug(traceback.format_exc())
                 return 500
+
+            except requests.ReadTimeout:
+                log.error('Connection to %s timeout.' % url_screen_cap)
+                log.debug(traceback.format_exc())
+                return 500, '%s Connection Timeout...' % url_screen_cap
 
     def reboot(self):
         """
@@ -719,7 +734,7 @@ class Phone(TestUrl):
             log.info('{phone} reboot success.'.format(phone=self.ip))
             return r_reboot[0]
         else:
-            log.error('{phone} reboot failed, return code is {code}'.format(phone=self.ip, code=r[0]))
+            log.error('{phone} reboot failed, return code is {code}'.format(phone=self.ip, code=r_reboot[0]))
             return r_reboot[0]
 
     def error_prompt(self, filename, line_num):
@@ -731,8 +746,9 @@ class Phone(TestUrl):
         :return:
         """
         import sys
+
         cmd = input(
-            'file:%s, lines:%s, input fine for continue or exit for terminate the script: ' % (filename, line_num))
+                'file:%s, lines:%s, input fine for continue or exit for terminate the script: ' % (filename, line_num))
         if cmd == 'fine':
             log.war('Continuing execute script manually.')
             pass
