@@ -1,5 +1,6 @@
 *** Setting ***
 Library             ../phoneFunction/action.py
+
 *** Keywords ***
 ${phone_1} CALL ${phone_2}
     ${result} =     action_make_call      ${phone_1}   ${phone_2}

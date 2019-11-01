@@ -1,11 +1,10 @@
 # Written by Stephen
 
-import time
 import re
 import requests
 import traceback
 
-from PhoneLib.htek_phone_conf import *
+from phoneFunction.syn_phonelib.htek_phone_conf import *
 
 
 class Phone(TestUrl):
@@ -179,12 +178,20 @@ class Phone(TestUrl):
         r_dial = self.requests_get(url_dial, self._func_name())
         if r_dial[0] == 200:
             time.sleep(1)
-            if self.check_status('outgoing'):
-                log.info('%s dialed %s success.' % (self.ext, dst_ext))
-                return 200
-            else:
-                log.info('Function Check Status Failed.')
-                return 400
+            with open('/tmp/htekPhoneLog/signal.txt', 'r') as f:
+                line = f.readline()
+                if 'out_going' in line:
+                    log.info('%s check signal [out_going] success.' % self.ip)
+                    pass
+                else:
+                    log.error('%s check signal [out_going] failed' % self.ip)
+                    return 400
+            # if self.check_status('outgoing'):
+            #     log.info('%s dialed %s success.' % (self.ext, dst_ext))
+            #     return 200
+            # else:
+            #     log.info('Function Check Status Failed.')
+            #     return 400
         elif r_dial[0] == 500:
             log.info('Function Dial return %s %s...' % (r_dial[0], r_dial[1]))
             return 500
@@ -203,12 +210,20 @@ class Phone(TestUrl):
             r_answer = self.requests_get(url_answer, self._func_name())
             if r_answer[0] == 200:
                 self.keep_call(2)
-                if self.check_status('talking') is True:
-                    log.info('%s(%s) answered success.' % (self.ext, self.ip))
-                    return 200
-                else:
-                    log.error('%s Check status failed...But the scripts will continue.' % self.ext)
-                    return 400
+                with open(SIGNAL, 'r') as f:
+                    line = f.readline()
+                    if 'call_established' in line:
+                        log.info('%s(%s) check signal [call_established] success.' % (self.ext, self.ip))
+                        return 200
+                    else:
+                        log.error('%s(%s) check signal [call_established] failed.' % (self.ext, self.ip))
+                        return 400
+                # if self.check_status('talking') is True:
+                #     log.info('%s(%s) answered success.' % (self.ext, self.ip))
+                #     return 200
+                # else:
+                #     log.error('%s Check status failed...But the scripts will continue.' % self.ext)
+                #     return 400
             else:
                 log.error('%s(%s) answered failed.' % (self.ext, self.ip))
                 return 500
@@ -814,3 +829,4 @@ def comparing_img(img_file, img_original):
 
     result = math.sqrt(reduce(operator.add, list(map(lambda a, b: (a - b) ** 2, h_new, h_ori))) / len(h_ori))
     return result
+
