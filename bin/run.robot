@@ -9,30 +9,30 @@ Resource            ./key_words.robot
 #    [Tags]    CALL
 #    [Documentation]     主叫挂机
 
-#    ${stephen_dut_1} CALL ${stephen_dut_2}
-#    ${stephen_dut_2} ANSWER
-#    ${stephen_dut_1} Hang Up
+#    ${dut_1} CALL ${dut_2}
+#    ${dut_2} ANSWER
+#    ${dut_1} Hang Up
 
 
 #Transfer
-#    ${stephen_dut_1} Call ${stephen_dut_2}
-#    ${stephen_dut_2} Answer
-#    ${stephen_dut_2} Blind Transfer to ${stephen_dut_3}
+#    ${dut_1} Call ${dut_2}
+#    ${dut_2} Answer
+#    ${dut_2} Blind Transfer to ${dut_3}
 #    WAIT 3
-#    ${stephen_dut_3} Answer
+#    ${dut_3} Answer
 #    Wait 3
-#    ${stephen_dut_3} Hang up
+#    ${dut_3} Hang up
 
 *** Test Cases ***
 单主席五方会议
     action log  info    >>> 5-ways conference start...
-    ${stephen_UC926E} Call ${stephen_UC912_1}
-    ${stephen_UC912_1} Answer
-    ${stephen_UC926E} Initiate Conference with ${stephen_UC926}
+    ${UC926E} Call ${UC912_1}
+    ${UC912_1} Answer
+    ${UC926E} Initiate Conference with ${UC926}
     wait 1
-    ${stephen_UC926E} Add Conf Part ${stephen_UC505}
+    ${UC926E} Add Conf Part ${UC505}
     wait 1
-    ${stephen_UC926E} Add Conf Part ${stephen_UC912_2}
+    ${UC926E} Add Conf Part ${UC912_2}
     wait 3
-    ${stephen_UC926E} Hang Up
+    ${UC926E} Hang Up
     action log  info    >>> 5-ways conference end...
