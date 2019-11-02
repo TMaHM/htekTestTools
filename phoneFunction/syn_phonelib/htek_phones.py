@@ -178,9 +178,11 @@ class Phone(TestUrl):
         r_dial = self.requests_get(url_dial, self._func_name())
         if r_dial[0] == 200:
             time.sleep(1)
-            with open('/tmp/htekPhoneLog/signal.txt', 'r') as f:
+            with open(SIGNAL_FILE, 'r') as f:
                 line = f.readline()
                 if 'out_going' in line:
+                    format_time = time.strftime('%y-%m-%d %H:%M:%S', time.localtime())
+                    print(format_time)
                     log.info('%s check signal [out_going] success.' % self.ip)
                     pass
                 else:
@@ -210,7 +212,7 @@ class Phone(TestUrl):
             r_answer = self.requests_get(url_answer, self._func_name())
             if r_answer[0] == 200:
                 self.keep_call(2)
-                with open(SIGNAL, 'r') as f:
+                with open(SIGNAL_FILE, 'r') as f:
                     line = f.readline()
                     if 'call_established' in line:
                         log.info('%s(%s) check signal [call_established] success.' % (self.ext, self.ip))

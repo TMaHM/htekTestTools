@@ -25,12 +25,17 @@ now_date = time.ctime().split(' ')[2]
 now_time = time.ctime().split(' ')[3].replace(':', '')
 
 # signal文件
-SIGNAL = '/tmp/htekPhoneLog/signal/signal.txt'
+SIGNAL_DIR = '/tmp/htekPhoneLog/signal'
+SIGNAL_FILE = '/tmp/htekPhoneLog/signal/signal.txt'
 SIGNAL_HISTORY = '/tmp/htekPhoneLog/signal/signal_history.txt'
 SIGNAL_BACK = '/tmp/htekPhoneLog/signal/signal-{month}-{date}{time}.txt'.format(month=now_month, date=now_date, time=now_time)
-if not os.path.exists(SIGNAL):
-    os.makedirs(os.path.dirname(SIGNAL))
-if os.path.getsize(SIGNAL_HISTORY) / 1024 ** 2 > 5:
+if not os.path.exists(SIGNAL_DIR):
+    os.makedirs(SIGNAL_DIR)
+if not os.path.exists(SIGNAL_FILE):
+    open(SIGNAL_FILE, 'w').close()
+if not os.path.exists(SIGNAL_HISTORY):
+    open(SIGNAL_HISTORY, 'w').close()
+elif os.path.getsize(SIGNAL_HISTORY) / 1024 ** 2 > 5:
     os.rename(SIGNAL_HISTORY, SIGNAL_BACK)
     open(SIGNAL_HISTORY, 'w').close()
 
