@@ -252,4 +252,7 @@ def check_fw(phones: tuple, boot_info: str, rom_info: str, img_info: str):
 
 
 phone_list_1 = (daily_uc923_1, daily_uc923_2, daily_uc912e_1, daily_uc926e_1, daily_uc912g_1)
-auto_upgrade(phone_list_1, 'test')
+auto_upgrade(phone_list_1, 'http://10.3.2.242:8080/rom/withOutBoot/')
+for phone in phone_list_1:
+    phone.reboot()
+
