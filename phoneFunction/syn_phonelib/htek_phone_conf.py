@@ -1,7 +1,11 @@
 import logging
 import os
 import time
+import random
 
+# server IP
+SERVER = '10.3.3.205'
+PORT = random.randint(10000, 12000)
 # 最大检查次数
 MAX_CHECK_TIMES = 10
 # 路径
@@ -26,9 +30,10 @@ now_time = time.ctime().split(' ')[3].replace(':', '')
 
 # signal文件
 SIGNAL_DIR = '/tmp/htekPhoneLog/signal'
-SIGNAL_FILE = '/tmp/htekPhoneLog/signal/signal.txt'
+SIGNAL_FILE = '/tmp/htekPhoneLog/signal/signal.json'
 SIGNAL_HISTORY = '/tmp/htekPhoneLog/signal/signal_history.txt'
-SIGNAL_BACK = '/tmp/htekPhoneLog/signal/signal-{month}-{date}{time}.txt'.format(month=now_month, date=now_date, time=now_time)
+SIGNAL_BACK = '/tmp/htekPhoneLog/signal/signal-{month}-{date}-{time}.txt'.format(month=now_month, date=now_date,
+                                                                                 time=now_time)
 if not os.path.exists(SIGNAL_DIR):
     os.makedirs(SIGNAL_DIR)
 if not os.path.exists(SIGNAL_FILE):
@@ -53,6 +58,7 @@ p_status_dir = \
         '8': 'conference', '[Conference]': ['FXSState=0x82', 'CallCtlState=0x88', 'LCMState=9 '],
         '9': 'conf_hold', '[Conf_Hold]': ['FXSState=0x82', 'CallCtlState=0x8d', 'LCMState=9 '],
     }
+
 # 扩展板的Key对应的消息
 exp_key_dir = \
     {
@@ -77,6 +83,7 @@ exp_key_dir = \
         'L19': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:18',
         'L20': 'EXPANSION:EXP_NO:0EXP_PAGE:0EXP_KEYNO:19',
     }
+
 # DSSKey字典
 # dsskey_dir = {'l1': {'type':'linekey1_type', 'value':'linekey1_value',...}
 dsskey_dir = {}
@@ -253,6 +260,29 @@ flx_pixel_dir = {
         'uc926':  {'drd': (0, 0, 0, 0), 'routit': (1, 1, 1, 1), },
         'uc924e': {'drd': (0, 0, 0, 0), 'routit': (1, 1, 1, 1), },
     },
+}
+
+action_url_dir = {
+    'out_going':         'P3708',
+    'incoming':          'P3707',
+    'off_hook':          'P3705',
+    'on_hook':           'P3706',
+    'call_established':  'P3709',
+    'call_terminated':   'P3710',
+    'dnd_on':            'P3711',
+    'dnd_off':           'P3712',
+    'transfer_call':     'P3719',
+    'blind_transfer':    'P3720',
+    'attended_transfer': 'P3721',
+    'hold':              'P3722',
+    'resume':            'P3723',
+    'mute':              'P3724',
+    'unmute':            'P3725',
+    'idle2busy':         'P3727',
+    'busy2idle':         'P3728',
+    'reject':            'P3730',
+    'transfer_finished': 'P3730',
+    'transfer_failed':   'P3731',
 }
 
 

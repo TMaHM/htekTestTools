@@ -1,0 +1,5 @@
+venv/
+*.html
+*.xml
+local_test/
+*__pycache__*

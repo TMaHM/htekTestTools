@@ -3,6 +3,10 @@
 import re
 import requests
 import traceback
+from multiprocessing import Process, Manager
+import threading
+import socket
+import sys
 
 from phoneFunction.syn_phonelib.htek_phone_conf import *
 
@@ -113,6 +117,142 @@ class Phone(TestUrl):
                 print('Configuration file prepare failed...')
                 log.error('Prepare config files %s failed.' % url)
 
+    def send_msg(self, port, action: str, signal_time):
+        # _signal_time = '{}{}'.format(action, random.randint(1, 1000000))
+
+        _action = action.lower()
+        _msg = 'http://{srv}:{port}/$ip/{action}/{flag}'.format(
+                srv=SERVER, port=port, action=action, flag=signal_time)
+        print('send msg: %s' % (_msg,))
+        if self.set_p_value(action_url_dir[action], _msg) == 200:
+            return signal_time, _action
+        else:
+            return None
+
+    def msg_controller(self, signal_ip, signal_action, url):
+        """
+        消息控制器。
+        在传出Action URL后，起socket监听话机发出的Action URL消息，如果收到的消息一致，返回200；消息不一致，返回400；超时返回500
+
+        requests消息通过子线程t1，在子进程proc_msg_rec中发送
+        子进程proc_timer控制超时强制退出
+
+        :param signal_ip:　话机IP，传入self.ip
+        :param signal_action:　话机执行动作，传入action_url_dir中定义的动作
+        :param url:　requests的URL，传入在具体函数中拼接的URL
+        :return:　一个单元素列表
+                　200 消息匹配;
+                　400　消息不匹配；
+                　500　socket接收超时
+        """
+
+        def _msg_handler(hdl_msg, hdl_ip, hdl_time, hdl_action):
+            __pat_str = r'(?<=GET)(.*)(?=HTTP)'
+            __msg = re.findall(__pat_str, hdl_msg)
+            if __msg:
+                __msg = __msg[0].strip()
+                __confirm_msg = '/{ip}/{action}/{time}'.format(ip=hdl_ip, action=hdl_action, time=hdl_time)
+                if __msg == __confirm_msg:
+                    log.info('MCM authorized msg from %s at %s.' % (signal_ip, time.time()))
+                    print(__msg)
+                    return True
+                else:
+                    log.error('MCM checking failed.')
+                    log.error('Received msg [%s]. Expect msg [%s]' % (__msg, __confirm_msg))
+                    return False
+            else:
+                log.error('Cannot parse msg...')
+                return False
+
+        def _timer(pid):
+            for __ in range(6):
+                time.sleep(1)
+            else:
+                os.kill(pid, 9)
+                sys.exit(-1)
+
+        def _msg_receiver(_msg_box, _msg_lock):
+            # _flag控制子线程t1执行次数，执行1此后置为0
+            _flag = 1
+            # 获取共享锁
+            _msg_lock.acquire()
+            # global msg_box
+            while True:
+                try:
+                    if _flag == 1:
+                        print('send time: %s' % time.time())
+                        t1.start()
+                    print('end time: %s' % time.time())
+                    _flag = 0
+                    # 等待接受消息
+                    client_socket, client_addr = srv.accept()
+                    print('receive time: %s' % time.time())
+                    received_data = client_socket.recv(1024)
+                    log.info('Receive msg from %s at %s' % (signal_ip, time.time()))
+
+                    if _msg_handler(received_data.decode(), signal_ip, signal_time, signal_action) is True:
+                        log.info('Operation %s checked success.' % signal_action)
+                        # 判断后，关闭socket
+                        srv.shutdown(2)
+                        srv.close()
+                        print('set as ture time: %s' % time.time())
+                        # 修改共享变量
+                        _msg_box[0] = 200
+                        # 释放共享锁
+                        _msg_lock.release()
+                        print('msg_box is %s' % msg_box)
+                        return 200
+                    else:
+                        log.error('Exit with msg parse error')
+                        srv.shutdown(2)
+                        srv.close()
+                        _msg_box[0] = 400
+                        _msg_lock.release()
+                        return 400
+
+                except KeyboardInterrupt:
+                    log.error('Exit with keyboard interrupt')
+                    log.debug(traceback.format_exc())
+                    srv.shutdown(2)
+                    srv.close()
+                    _msg_box[0] = 500
+                    _msg_lock.release()
+                    return 500
+
+        # 设置共享变量(列表)，默认500，表示Timeout
+        msg_box = Manager().list()
+        msg_box.append(500)
+        # 设置共享锁
+        msg_lock = Manager().Lock()
+
+        # 建立socket
+        _port = random.randint(10000, 20000)
+        srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        srv.bind(('', _port))
+        srv.listen(128)
+
+        # 设置话机 Action URL
+        signal_time = time.time()
+        _msg = self.send_msg(_port, signal_action, signal_time)
+
+        # 设置requests线程t1
+        t1 = threading.Thread(target=self.requests_get, args=(url, self._func_name()))
+
+        # 接受消息子进程
+        proc_msg_rec = Process(target=_msg_receiver, args=(msg_box, msg_lock))
+        proc_msg_rec.start()
+
+        # 起计时器子进程，5s为超时，强制退出
+        proc_timer = Process(target=_timer, args=(proc_msg_rec.pid,))
+        proc_timer.start()
+
+        # 阻塞 proc_msg_rec
+        proc_msg_rec.join()
+        proc_timer.terminate()
+
+        return msg_box
+
     def check_status(self, status: str):
         """
         在达到最大检查次数前，如果状态检查失败，间隔0.5s重复执行
@@ -172,34 +312,20 @@ class Phone(TestUrl):
         :return: 200->success; 400->get error; 500->connection error
         """
 
-        # 定义拨号url，使用ActionURL方式拨号
         log.info('%s try to dial %s' % (self.ext, dst_ext))
+        # 定义拨号url，使用原有的ActionURL方式，原因是这样可以指定使用哪个Account拨号
         url_dial = '%s/Phone_ActionURL&Command=1&Number=%s&Account=%s' % (self.url_prefix, dst_ext, str(self.line))
-        r_dial = self.requests_get(url_dial, self._func_name())
-        if r_dial[0] == 200:
-            time.sleep(1)
-            with open(SIGNAL_FILE, 'r') as f:
-                line = f.readline()
-                if 'out_going' in line:
-                    format_time = time.strftime('%y-%m-%d %H:%M:%S', time.localtime())
-                    print(format_time)
-                    log.info('%s check signal [out_going] success.' % self.ip)
-                    pass
-                else:
-                    log.error('%s check signal [out_going] failed' % self.ip)
-                    return 400
-            # if self.check_status('outgoing'):
-            #     log.info('%s dialed %s success.' % (self.ext, dst_ext))
-            #     return 200
-            # else:
-            #     log.info('Function Check Status Failed.')
-            #     return 400
-        elif r_dial[0] == 500:
-            log.info('Function Dial return %s %s...' % (r_dial[0], r_dial[1]))
-            return 500
-        else:
-            log.info('Function Dial return %s %s...' % (r_dial[0], r_dial[1]))
+        _msg_checker = self.msg_controller(self.ip, 'out_going', url_dial)
+        print(_msg_checker)
+        if _msg_checker[0] is 200:
+            log.info('%s dial %s success.' % (self.ext, dst_ext))
+            return 200
+        elif _msg_checker[0] is 400:
+            log.error('Parse error, %s dial %s failed.' % (self.ext, dst_ext))
             return 400
+        else:
+            log.error('Timeout, %s dial %s failed.' % (self.ext, dst_ext))
+            return 500
 
     def answer(self, cmd: str = 'SPEAKER'):
         """
@@ -207,42 +333,57 @@ class Phone(TestUrl):
         :param cmd: str F1, SPEAKER or OK
         :return: 200->success; 400->get error; 500->connection error
         """
+        log.info('%s try to answer the call' % self.ext)
         if self.check_status('ringing') is True:
             url_answer = '%s%s' % (self.url_keyboard, cmd.upper())
-            r_answer = self.requests_get(url_answer, self._func_name())
-            if r_answer[0] == 200:
-                self.keep_call(2)
-                with open(SIGNAL_FILE, 'r') as f:
-                    line = f.readline()
-                    if 'call_established' in line:
-                        log.info('%s(%s) check signal [call_established] success.' % (self.ext, self.ip))
-                        return 200
-                    else:
-                        log.error('%s(%s) check signal [call_established] failed.' % (self.ext, self.ip))
-                        return 400
-                # if self.check_status('talking') is True:
-                #     log.info('%s(%s) answered success.' % (self.ext, self.ip))
-                #     return 200
-                # else:
-                #     log.error('%s Check status failed...But the scripts will continue.' % self.ext)
-                #     return 400
+            _msg_checker = self.msg_controller(self.ip, 'call_established', url_answer)
+            if _msg_checker[0] is 200:
+                log.info('%s answered the call success.' % self.ext)
+                # self.keep_call(2)
+                return 200
+            elif _msg_checker[0] is 400:
+                log.error('Parse error, %s answered failed.' % self.ext)
+                return 400
             else:
-                log.error('%s(%s) answered failed.' % (self.ext, self.ip))
+                log.error('Timeout, %s answered failed.' % self.ext)
                 return 500
+
+    def end_call(self, cmd: str = 'X'):
+        """
+        结束当前通话，默认使用X键.
+        :param cmd: str range: [F4, SPEAKER or X]
+        :return: 200 Success or 400 False
+        """
+        log.info('%s try to end call with [%s]' % (self.ext, cmd.upper()))
+        url_end = self.url_keyboard + cmd.upper()
+        _msg_checker = self.msg_controller(self.ip, 'call_terminated', url_end)
+        if _msg_checker[0] is 200:
+            log.info('%s end the call with %s' % (self.ext, cmd.upper()))
+            return 200
+        elif _msg_checker[0] is 400:
+            log.error('Parse error, %s end call failed.' % self.ext)
+            return 400
+        else:
+            log.error('Timeout, %s end the call failed with %s.' % (self.ext, cmd.upper()))
+            return 500
 
     def hold(self):
         """
         hold 方法
         :return: 200 Success or 400 False
         """
+        log.info('%s try to hold the call' % self.ext)
         url_hold = '%s%s' % (self.url_keyboard, 'F_HOLD')
-        self.requests_get(url_hold, self._func_name())
-        if self.check_status('hold') == 200:
-            log.info('%s(%s) is now hold the call.' % (self.ext, self.ip))
+        _msg_checker = self.msg_controller(self.ip, 'hold', url_hold)
+        if _msg_checker[0] is 200:
+            log.info('%s(%s) is now holding the call.' % (self.ext, self.ip))
             return 200
-        else:
-            log.error('%s(%s) hold the call failed.' % (self.ext, self.ip))
+        elif _msg_checker[0] is 400:
+            log.error('%s(%s) hold the call failed, return code is %s.' % (self.ext, self.ip, _msg_checker[0]))
             return 400
+        else:
+            log.error('Timeout, %s(%s) hold the call failed, return code is %s.' % (self.ext, self.ip, _msg_checker[0]))
+            return 500
 
     def keep_call(self, seconds: int):
         """
@@ -512,28 +653,6 @@ class Phone(TestUrl):
                     log.error(self.ip + ' trigger Expansion' + cmd + 'failed...')
                     return 400
 
-    def end_call(self, cmd: str = 'X'):
-        """
-        结束当前通话，默认使用X键.
-        :param cmd: str range: [F4, SPEAKER or X]
-        :return: 200 Success or 400 False
-        """
-
-        url_end = self.url_keyboard + cmd.upper()
-        r_end = self.requests_get(url_end, self._func_name())
-        if r_end[0] == 200:
-            time.sleep(2)
-            if self.check_status('idle'):
-                log.info(self.ip + ' end the call with ' + cmd)
-                return 200
-            else:
-                self.screen_shot(self._func_name())
-                log.error(self.ip + ' end call failed with ' + cmd)
-                return 400
-        else:
-            log.error(self.ip + ' Return ' + str(r_end[0]) + ', End call failed.')
-            return 400
-
     def flexible_seating(self, method: str = None, solution: str = None, aid: int = 0, number: str = None,
                          pwd: str = None, ):
         """
@@ -682,12 +801,12 @@ class Phone(TestUrl):
         url_memory = self.url_get_memory
         r_mem = self.requests_get(url_memory, self._func_name())
         if r_mem[0] == 200:
-            mem_info = re.findall(pat_un_tag, r_mem[0])
+            mem_info = re.findall(pat_un_tag, r_mem[1])
             print(mem_info, time.time())
             log.info(self.ip + str(mem_info))
             return 200
         else:
-            log.error(self.ip + 'Get memory failed, return ' + str(r_mem[0]))
+            log.error(self.ip + 'Get memory failed, return ' + str(r_mem[1]))
             return 400
 
     def screen_shot(self, screen_name):
@@ -831,4 +950,3 @@ def comparing_img(img_file, img_original):
 
     result = math.sqrt(reduce(operator.add, list(map(lambda a, b: (a - b) ** 2, h_new, h_ori))) / len(h_ori))
     return result
-
