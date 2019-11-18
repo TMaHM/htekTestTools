@@ -1,15 +1,16 @@
 from PhoneLib.htek_phones import Phone
+# from phoneFunction.syn_phonelib.htek_phones import Phone
 
 Zoy_UC501 = Phone('10.3.2.132', '626', line=1, usr='admin', pwd='admin')
 Zoy_S505 = Phone('10.3.2.231', '627', line=1, usr='admin', pwd='admin')
 Zoy_UC926E = Phone('10.3.2.74', '628', line=2, usr='admin', pwd='admin')
 
 
-UC926E = Phone('10.3.3.18', '2054', line=3, model='uc926e', usr='admin', pwd='admin')
-UC912_1 = Phone('10.3.2.123', '2055', line=2, model='uc912', usr='admin', pwd='admin')
+UC926E = Phone('10.3.3.192', '2054', line=3, model='uc926e', usr='admin', pwd='admin')
+UC912_1 = Phone('10.3.2.123', '2055', line=1, model='uc912', usr='admin', pwd='admin')
 UC926 = Phone('10.3.3.123', '0002', model='uc926')
 UC505 = Phone('10.3.3.140', '2056', model='uc505')
-UC912_2 = Phone('10.3.3.146', '2057', model='uc912M')
+UC912_2 = Phone('10.3.3.191', '2057', model='uc912M')
 
 dspg1 = Phone('10.2.4.115', '633', line=1, model='uc926e', usr='admin', pwd='admin')
 dspg2 = Phone('10.2.3.252', '632', line=2, model='uc912', usr='admin', pwd='admin')

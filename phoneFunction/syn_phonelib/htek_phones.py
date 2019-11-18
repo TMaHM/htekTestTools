@@ -3,6 +3,7 @@
 import re
 import requests
 import traceback
+import json
 
 from phoneFunction.syn_phonelib.htek_phone_conf import *
 
@@ -113,6 +114,36 @@ class Phone(TestUrl):
                 print('Configuration file prepare failed...')
                 log.error('Prepare config files %s failed.' % url)
 
+    def send_msg(self, action: str):
+        # _signal_flag = '{}{}'.format(action, random.randint(1, 1000000))
+        _signal_flag = '%s' % (time.time(),)
+        _action = action.lower()
+        _msg = 'http://{srv}:{port}/$ip/{action}/{flag}'.format(
+                srv=SERVER, port=PORT, action=action, flag=_signal_flag)
+        print('send msg: %s' % (_msg,))
+        if self.set_p_value(action_url_dir[action], _msg) == 200:
+            return _signal_flag, _action
+        else:
+            return None
+
+    def check_signal(self, msg):
+        if msg is not None:
+            _signal_flag = msg[0]
+            _action = msg[1]
+            with open(SIGNAL_FILE, 'r', encoding='utf-8') as f:
+                msg_box = json.load(f)
+            with open(SIGNAL_HISTORY, 'a', encoding='utf-8') as f:
+                f.write('{time}: {ip} - {action}\n'.format(time=msg[0], ip=self.ip, action=msg[1]))
+            try:
+                _check_data = msg_box[_signal_flag]
+                if _check_data['ip'] == self.ip and _check_data['action'] == _action:
+                    return True
+                else:
+                    return False
+            except KeyboardInterrupt:
+                log.debug(traceback.format_exc())
+                return False
+
     def check_status(self, status: str):
         """
         在达到最大检查次数前，如果状态检查失败，间隔0.5s重复执行
@@ -175,19 +206,34 @@ class Phone(TestUrl):
         # 定义拨号url，使用ActionURL方式拨号
         log.info('%s try to dial %s' % (self.ext, dst_ext))
         url_dial = '%s/Phone_ActionURL&Command=1&Number=%s&Account=%s' % (self.url_prefix, dst_ext, str(self.line))
+        _msg = self.send_msg('out_going')
         r_dial = self.requests_get(url_dial, self._func_name())
         if r_dial[0] == 200:
-            time.sleep(1)
-            with open(SIGNAL_FILE, 'r') as f:
-                line = f.readline()
-                if 'out_going' in line:
-                    format_time = time.strftime('%y-%m-%d %H:%M:%S', time.localtime())
-                    print(format_time)
-                    log.info('%s check signal [out_going] success.' % self.ip)
-                    pass
-                else:
-                    log.error('%s check signal [out_going] failed' % self.ip)
-                    return 400
+            time.sleep(2)
+            if self.check_signal(_msg):
+                log.info('%s check signal [out_going] success.' % self.ip)
+                return 200
+            else:
+                log.error('%s check signal [out_going] failed' % self.ip)
+                return 400
+            # if 'out_going' in _msg:
+            #     log.info('%s check signal [out_going] success.' % self.ip)
+            #     return 200
+            # else:
+            #     log.error('%s check signal [out_going] failed' % self.ip)
+            #     return 400
+
+            # with open(SIGNAL_FILE, 'r') as f:
+            #     line = f.readline()
+            #     if 'out_going' in line:
+            #         format_time = time.strftime('%y-%m-%d %H:%M:%S', time.localtime())
+            #         print(format_time)
+            #         log.info('%s check signal [out_going] success.' % self.ip)
+            #         pass
+            #     else:
+            #         log.error('%s check signal [out_going] failed' % self.ip)
+            #         return 400
+
             # if self.check_status('outgoing'):
             #     log.info('%s dialed %s success.' % (self.ext, dst_ext))
             #     return 200
@@ -209,17 +255,26 @@ class Phone(TestUrl):
         """
         if self.check_status('ringing') is True:
             url_answer = '%s%s' % (self.url_keyboard, cmd.upper())
+            _msg = self.send_msg('call_established')
             r_answer = self.requests_get(url_answer, self._func_name())
             if r_answer[0] == 200:
                 self.keep_call(2)
-                with open(SIGNAL_FILE, 'r') as f:
-                    line = f.readline()
-                    if 'call_established' in line:
-                        log.info('%s(%s) check signal [call_established] success.' % (self.ext, self.ip))
-                        return 200
-                    else:
-                        log.error('%s(%s) check signal [call_established] failed.' % (self.ext, self.ip))
-                        return 400
+                if self.check_signal(_msg):
+                    log.info('%s(%s) check signal [call_established] success.' % (self.ext, self.ip))
+                    return 200
+                else:
+                    log.error('%s(%s) check signal [call_established] failed.' % (self.ext, self.ip))
+                    return 400
+
+                # with open(SIGNAL_FILE, 'r') as f:
+                #     line = f.readline()
+                #     if 'call_established' in line:
+                #         log.info('%s(%s) check signal [call_established] success.' % (self.ext, self.ip))
+                #         return 200
+                #     else:
+                #         log.error('%s(%s) check signal [call_established] failed.' % (self.ext, self.ip))
+                #         return 400
+
                 # if self.check_status('talking') is True:
                 #     log.info('%s(%s) answered success.' % (self.ext, self.ip))
                 #     return 200
@@ -520,16 +575,26 @@ class Phone(TestUrl):
         """
 
         url_end = self.url_keyboard + cmd.upper()
+        _msg = self.send_msg('call_terminated')
         r_end = self.requests_get(url_end, self._func_name())
         if r_end[0] == 200:
             time.sleep(2)
-            if self.check_status('idle'):
-                log.info(self.ip + ' end the call with ' + cmd)
+            if self.check_signal(_msg):
+                log.info('%s check [call terminated] success.' % self.ext)
+                log.info('%s(%s) end the call with %s' % (self.ext, self.ip, cmd))
                 return 200
             else:
-                self.screen_shot(self._func_name())
-                log.error(self.ip + ' end call failed with ' + cmd)
+                log.error('%s check [call terminated] failed.' % self.ext)
+                log.error('%s(%s) end the call failed with %s' % (self.ext, self.ip, cmd))
                 return 400
+
+            # if self.check_status('idle'):
+            #     log.info(self.ip + ' end the call with ' + cmd)
+            #     return 200
+            # else:
+            #     self.screen_shot(self._func_name())
+            #     log.error(self.ip + ' end call failed with ' + cmd)
+            #     return 400
         else:
             log.error(self.ip + ' Return ' + str(r_end[0]) + ', End call failed.')
             return 400
@@ -831,4 +896,3 @@ def comparing_img(img_file, img_original):
 
     result = math.sqrt(reduce(operator.add, list(map(lambda a, b: (a - b) ** 2, h_new, h_ori))) / len(h_ori))
     return result
-
