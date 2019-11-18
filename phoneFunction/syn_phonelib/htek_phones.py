@@ -566,7 +566,7 @@ class Phone(TestUrl):
         用于执行 Transfer 的方法
         当前话机必须已处在一路通话中
         该方法只执行transfer，这意味着最后一步是按下Transfer以完成此功能，而不是完成整个transfer业务
-        所以，在实际使用时，除了Attended Transfer外，都需要在transfer后让目标接起
+        所以，在实际使用时，除了Attended Transfer外，都需要在调用transfer后再写一步让目标answer
         :param target: 另一个Phone对象，即 Transfer 的对象
         :param mod: str Transfer的模式，当前支持 BT， SAT， AT
         :return: 200 Success
@@ -598,13 +598,21 @@ class Phone(TestUrl):
         for number in target.ext:
             self.press_key(number)
 
+        url_transfer = self.url_keyboard + 'F_TRANSFER'
+
         if mod == 'AT':
             log.info(
                     '{executor} execute [Attended Transfer] to {target}'.format(executor=self.ext, target=target.ext))
             self.press_key('OK')
             if target.answer() == 200:
-                self.press_key('f_transfer')
-                return 200
+                _msg_checker = self.msg_controller(self.ip, 'transfer_finished', url_transfer)
+                if _msg_checker[0] is 200:
+                    log.info('%s transfer the call to %s success.' % (self.ext, target.ext))
+                    return 200
+                elif _msg_checker[0] is 400:
+                    log.error('Parse error, %s transfer the call to %s failed' % (self.ext, target.ext))
+                else:
+                    log.error('Timeout, %s transfer the call to %s failed.' % (self.ext, target.ext))
             else:
                 log.error('Target %s answer failed.' % target.ext)
                 return 481
@@ -613,14 +621,27 @@ class Phone(TestUrl):
                                                                                       target=target.ext))
             self.press_key('OK')
             if target.check_status('ringing') is True:
-                self.press_key('f_transfer')
-                return 200
+                _msg_checker = self.msg_controller(self.ip, 'transfer_finished', url_transfer)
+                if _msg_checker[0] is 200:
+                    log.info('%s transfer the call to %s success.' % (self.ext, target.ext))
+                    return 200
+                elif _msg_checker[0] is 400:
+                    log.error('Parse error, %s transfer the call to %s failed' % (self.ext, target.ext))
+                else:
+                    log.error('Timeout, %s transfer the call to %s failed.' % (self.ext, target.ext))
             else:
                 log.error('Target %s is not in ringing status.' % target.ext)
                 return 481
         elif mod == 'BT':
             log.info('{executor} execute [Blind Transfer] to {target}'.format(executor=self.ext, target=target.ext))
-            self.press_key('f_transfer')
+            _msg_checker = self.msg_controller(self.ip, 'transfer_finished', url_transfer)
+            if _msg_checker[0] is 200:
+                log.info('%s transfer the call to %s success.' % (self.ext, target.ext))
+                return 200
+            elif _msg_checker[0] is 400:
+                log.error('Parse error, %s transfer the call to %s failed' % (self.ext, target.ext))
+            else:
+                log.error('Timeout, %s transfer the call to %s failed.' % (self.ext, target.ext))
             return 200
         else:
             log.error('Transfer mod error --> ' + mod)

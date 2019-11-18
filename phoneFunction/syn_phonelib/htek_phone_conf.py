@@ -281,8 +281,8 @@ action_url_dir = {
     'idle2busy':         'P3727',
     'busy2idle':         'P3728',
     'reject':            'P3730',
-    'transfer_finished': 'P3730',
-    'transfer_failed':   'P3731',
+    'transfer_finished': 'P3732',
+    'transfer_failed':   'P3733',
 }
 
 
