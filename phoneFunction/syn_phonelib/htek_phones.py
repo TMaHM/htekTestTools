@@ -322,6 +322,7 @@ class Phone(TestUrl):
             return 200
         elif _msg_checker[0] is 400:
             log.error('Parse error, %s dial %s failed.' % (self.ext, dst_ext))
+
             return 400
         else:
             log.error('Timeout, %s dial %s failed.' % (self.ext, dst_ext))
@@ -344,9 +345,6 @@ class Phone(TestUrl):
             elif _msg_checker[0] is 400:
                 log.error('Parse error, %s answered failed.' % self.ext)
                 return 400
-            else:
-                log.error('Timeout, %s answered failed.' % self.ext)
-                return 500
 
     def end_call(self, cmd: str = 'X'):
         """
