@@ -1,0 +1,9 @@
+*.html
+*.xml
+local_test/
+log/
+*__pycache__*
+*log*
+temp_file
+venv/
+*test*
